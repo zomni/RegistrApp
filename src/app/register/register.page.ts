@@ -10,7 +10,6 @@ export class RegisterPage {
   constructor(private router: Router) {}
 
   register() {
-    // Aquí implementarías la lógica de registro
     this.router.navigate(['/login']);
   }
 }
