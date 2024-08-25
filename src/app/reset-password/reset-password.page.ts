@@ -10,7 +10,6 @@ export class ResetPasswordPage {
   constructor(private router: Router) {}
 
   resetPassword() {
-    // Aquí implementarías la lógica de restablecimiento de contraseña
     this.router.navigate(['/login']);
   }
 }

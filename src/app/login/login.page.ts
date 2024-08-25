@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -7,9 +8,23 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
-  constructor(private router: Router) {}
+  username: string = '';
+  password: string = '';
 
-  login() {
-    this.router.navigate(['/home']);
+  constructor(private router: Router, private alertController: AlertController) {}
+
+  async login() {
+    if ((this.username === 'admin' && this.password === '123456') || 
+        (this.username === 'prueba' && this.password === 'prueba')) {
+      this.router.navigate(['/home']);
+    } else {
+      const alert = await this.alertController.create({
+        header: 'Fallo al iniciar sesión',
+        message: 'Nombre de usuario inválido o contraseña inválida',
+        buttons: ['OK'],
+      });
+
+      await alert.present();
+    }
   }
 }
