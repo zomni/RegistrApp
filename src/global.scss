@@ -38,23 +38,24 @@
 
 /* Sobrescribir las variables de color en :root */
 :root {
-  --ion-color-primary: #274C77;
-  --ion-color-primary-rgb: 39, 76, 119;
-  --ion-color-primary-contrast: #E7ECEF;
-  --ion-color-primary-contrast-rgb: 231, 236, 239;
-  --ion-color-primary-shade: #223A5D;
-  --ion-color-primary-tint: #365E91;
+  --ion-color-primary: #A41623; // Color principal
+  --ion-color-primary-rgb: 164, 22, 35;
+  --ion-color-primary-contrast: #FFD29D; // Contraste
+  --ion-color-primary-contrast-rgb: 221, 41, 157;
+  --ion-color-primary-shade: #8C1220; // Sombra
+  --ion-color-primary-tint: #C52A2B; // Tono
 
-  --ion-color-secondary: #6096BA;
-  --ion-color-secondary-rgb: 96, 150, 186;
-  --ion-color-secondary-contrast: #E7ECEF;
-  --ion-color-secondary-contrast-rgb: 231, 236, 239;
-  --ion-color-secondary-shade: #537D9A;
-  --ion-color-secondary-tint: #769DBC;
+  --ion-color-secondary: #F85E00; // Color secundario
+  --ion-color-secondary-rgb: 248, 94, 0;
+  --ion-color-secondary-contrast: #FFD29D; // Contraste
+  --ion-color-secondary-contrast-rgb: 221, 41, 157;
+  --ion-color-secondary-shade: #D24D00; // Sombra
+  --ion-color-secondary-tint: #F8853D; // Tono
 
-  --ion-background-color: #E7ECEF;
-  --ion-text-color: #274C77;
+  --ion-background-color: #FFB563; // Color de fondo
+  --ion-text-color: #918450; // Color de texto
 }
+
 
 /* Sobrescribir para modos específicos (si es necesario) */
 body {
