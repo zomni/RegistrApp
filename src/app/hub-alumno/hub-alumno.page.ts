@@ -20,8 +20,8 @@ export class HubAlumnoPage implements OnInit {
   }
 
   getWeather() {
-    const lat = -33.4489;
-    const lon = -70.6693;
+    const lat = -33.49936946781729;
+    const lon = -70.6165073767097;
     this.fetchWeather(lat, lon);
   }
 
@@ -30,11 +30,21 @@ export class HubAlumnoPage implements OnInit {
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=es&units=metric`;
 
     fetch(url)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((data) => {
-        const temperature = data.main.temp;
-        const weatherDescription = data.weather[0].description;
-        this.weather = `${temperature}°C, ${weatherDescription.charAt(0).toUpperCase() + weatherDescription.slice(1)}`;
+        if (data.main && data.weather && data.name) {
+          const temperature = data.main.temp.toFixed(0);
+          const weatherDescription = data.weather[0].description;
+          const cityName = data.name;
+          this.weather = `${cityName}: ${temperature}°C, ${weatherDescription.charAt(0).toUpperCase() + weatherDescription.slice(1)}`;
+        } else {
+          this.weather = 'Datos del clima no disponibles';
+        }
       })
       .catch((error) => {
         console.error('Error al obtener el clima:', error);
