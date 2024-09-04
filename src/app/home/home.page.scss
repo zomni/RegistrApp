@@ -1,27 +1,28 @@
-#container {
+.welcome-container {
   text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-top: 30vh;
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.footer-text {
+  text-align: center;
+  width: 100%;
+  font-size: 0.9em;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
-#container a {
-  text-decoration: none;
+.logo {
+  width: 200px; /* Mismo tamaño del logo que en el login */
+  margin-bottom: 20px;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
 }

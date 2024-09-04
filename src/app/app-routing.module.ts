@@ -26,7 +26,11 @@ const routes: Routes = [
   {
     path: 'register',
     loadChildren: () => import('./register/register.module').then( m => m.RegisterPageModule)
+  },  {
+    path: 'hub-alumno',
+    loadChildren: () => import('./hub-alumno/hub-alumno.module').then( m => m.HubAlumnoPageModule)
   },
+
 ];
 
 @NgModule({

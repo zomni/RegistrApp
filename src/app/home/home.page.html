@@ -5,10 +5,20 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h1>Bienvenido a RegistrApp</h1>
+  <div class="home-container">
+    <img src="assets/imagenes/logo-no-background.png" alt="Logo" class="logo">
+    <h1>Bienvenido a RegistrApp</h1>
 
-  <ion-button expand="full" (click)="goToLogin()">Iniciar sesión</ion-button>
-  <ion-button expand="full" (click)="goToQRn()">Boton QR</ion-button>
+    <ion-button expand="full" (click)="goToLogin()">Comenzar</ion-button>
+  </div>
 
-  <h2></h2>
+  <div class="footer">
+    <p>© 2024 RegistrApp. Todos los derechos reservados.</p>
+  </div>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <p class="footer-text">© 2024 RegistrApp. Todos los derechos reservados.</p>
+  </ion-toolbar>
+</ion-footer>
