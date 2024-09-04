@@ -1,0 +1,59 @@
+.custom-tab-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 0 10px;
+  }
+  
+  ion-button {
+    --color-selected: #000000;
+    --icon-size: 32px;
+    font-size: 1.2em;
+    padding: 12px;
+    border-radius: 20%;
+  }
+  
+  .fab-space {
+    width: 70px; /* Espacio para el botón central */
+  }
+  
+  ion-fab {
+    position: fixed;
+    bottom: 0;
+    transform: translateY(-30%); /* Levantar el botón sobre el footer */
+  }
+  
+  ion-fab-button {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+  }
+  
+  ion-fab-button ion-icon {
+    font-size: 3em;
+  }
+  
+  .date-container {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .schedule-table th,
+  .schedule-table td {
+    border: 1px solid #6096BA;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .schedule-table th {
+    background-color: #274C77;
+    color: white;
+  }
+  

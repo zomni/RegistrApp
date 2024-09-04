@@ -1,13 +1,117 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>hub-alumno</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title></ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">hub-alumno</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="date-container">
+    <h2>{{ currentDate }}</h2>
+    <h3>{{ weather }}</h3>
+  </div>
+
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th>Día</th>
+        <th>Hora</th>
+        <th>Asignatura</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Lunes</td>
+        <td>08:00 - 10:00</td>
+        <td>Matemáticas</td>
+      </tr>
+      <tr>
+        <td>Lunes</td>
+        <td>10:15 - 12:15</td>
+        <td>Historia</td>
+      </tr>
+      <tr>
+        <td>Martes</td>
+        <td>08:00 - 10:00</td>
+        <td>Ciencias</td>
+      </tr>
+      <tr>
+        <td>Martes</td>
+        <td>10:15 - 12:15</td>
+        <td>Inglés</td>
+      </tr>
+      <tr>
+        <td>Miércoles</td>
+        <td>08:00 - 10:00</td>
+        <td>Programación</td>
+      </tr>
+      <tr>
+        <td>Miércoles</td>
+        <td>10:15 - 12:15</td>
+        <td>Diseño Gráfico</td>
+      </tr>
+      <tr>
+        <td>Jueves</td>
+        <td>08:00 - 10:00</td>
+        <td>Literatura</td>
+      </tr>
+      <tr>
+        <td>Jueves</td>
+        <td>10:15 - 12:15</td>
+        <td>Física</td>
+      </tr>
+      <tr>
+        <td>Viernes</td>
+        <td>08:00 - 10:00</td>
+        <td>Química</td>
+      </tr>
+      <tr>
+        <td>Viernes</td>
+        <td>10:15 - 12:15</td>
+        <td>Educación Física</td>
+      </tr>
+      <tr>
+        <td>Sábado</td>
+        <td>08:00 - 10:00</td>
+        <td>Ética</td>
+      </tr>
+      <tr>
+        <td>Sábado</td>
+        <td>10:15 - 12:15</td>
+        <td>Proyecto Final</td>
+      </tr>
+    </tbody>
+  </table>
 </ion-content>
+
+<ion-fab vertical="bottom" horizontal="center" slot="fixed">
+  <ion-fab-button routerLink="/qr-scan"> 
+    <ion-icon name="qr-code-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="custom-tab-bar">
+      <ion-button fill="clear" routerLink="/search">
+        <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+      </ion-button>
+
+      <ion-button fill="clear" routerLink="/bookmark">
+        <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
+      </ion-button>
+
+      <div class="fab-space"></div>
+
+      <ion-button fill="clear" routerLink="/notifications">
+        <ion-icon slot="icon-only" name="notifications-outline"></ion-icon>
+      </ion-button>
+
+      <ion-button fill="clear" routerLink="/profile">
+        <ion-icon slot="icon-only" name="person-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>
