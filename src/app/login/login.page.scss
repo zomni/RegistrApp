@@ -1,0 +1,29 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+.logo {
+    width: 200px; /* Aumentar tamaño del logo */
+    margin-bottom: 20px;
+  }
+
+ion-card {
+    width: 90%;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+ion-button {
+    margin-top: 0; /* Eliminar espacio entre botones */
+    margin-bottom: 5px; /* Añadir un pequeño espacio entre los botones */
+}
+
+.footer-text {
+    text-align: center;
+    width: 100%;
+    font-size: 0.9em;
+}

@@ -16,7 +16,7 @@ export class LoginPage {
   async login() {
     if ((this.username === 'admin' && this.password === '123456') || 
         (this.username === 'prueba' && this.password === 'prueba')) {
-      this.router.navigate(['/home']);
+      this.router.navigate(['/hub-alumno']);
     } else {
       const alert = await this.alertController.create({
         header: 'Fallo al iniciar sesión',
