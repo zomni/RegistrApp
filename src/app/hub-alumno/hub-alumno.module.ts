@@ -8,6 +8,11 @@ import { HubAlumnoPageRoutingModule } from './hub-alumno-routing.module';
 
 import { HubAlumnoPage } from './hub-alumno.page';
 
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
+
+registerLocaleData(localeEs);
+
 @NgModule({
   imports: [
     CommonModule,
