@@ -9,7 +9,8 @@ import { AlertController } from '@ionic/angular';
   styleUrls: ['./qr-scan.page.scss'],
 })
 export class QrScanPage implements OnInit, OnDestroy {
-  private html5QrCode!: Html5Qrcode; // Usar operador de aserción no nula
+  private html5QrCode!: Html5Qrcode;
+  private isScanning: boolean = true; // Bandera para controlar el escaneo
 
   constructor(private router: Router, private alertController: AlertController) {}
 
@@ -24,11 +25,20 @@ export class QrScanPage implements OnInit, OnDestroy {
         qrbox: { width: 250, height: 250 } // Tamaño del cuadro de escaneo
       },
       async qrCodeMessage => {
-        // Esto se llama cuando se escanea un código QR
-        await this.showSuccessMessage();
+        if (this.isScanning) {
+          // Detener el escáner inmediatamente después de escanear
+          this.isScanning = false;
+          this.html5QrCode.stop().then(() => {
+            console.log("Escaneo detenido");
+          }).catch(err => {
+            console.error("Error al detener el escáner", err);
+          });
+
+          // Mostrar mensaje de éxito
+          await this.showSuccessMessage();
+        }
       },
       errorMessage => {
-        // Manejo de errores
         console.warn(`Error al escanear: ${errorMessage}`);
       }
     ).catch(err => {
@@ -38,7 +48,7 @@ export class QrScanPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // Detén el escáner cuando se destruye el componente
-    if (this.html5QrCode) {
+    if (this.html5QrCode && this.isScanning) {
       this.html5QrCode.stop().catch(err => {
         console.error(`Error al detener el escáner: ${err}`);
       });
