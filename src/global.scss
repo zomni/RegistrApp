@@ -56,6 +56,15 @@
   --ion-text-color: #918450; // Color de texto
 }
 
+.dark-theme {
+  --ion-background-color: #5e554d; // Color de fondo oscuro
+  --ion-text-color: #e5e5e5; // Color de texto claro
+  
+  --ion-color-primary: #A41623; // Color principal
+  --ion-color-primary-contrast: #FFD29D; // Contraste
+  --ion-color-secondary: #F85E00; // Color secundario
+  --ion-color-secondary-contrast: #FFD29D; // Contraste secundario
+}
 
 /* Sobrescribir para modos específicos (si es necesario) */
 body {
