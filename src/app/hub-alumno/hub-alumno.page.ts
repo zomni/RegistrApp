@@ -9,6 +9,7 @@ import { formatDate } from '@angular/common';
 export class HubAlumnoPage implements OnInit {
   currentDate: string;
   weather: string;
+  isDarkMode: boolean = false;
 
   constructor() {
     this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
@@ -17,6 +18,7 @@ export class HubAlumnoPage implements OnInit {
 
   ngOnInit() {
     this.getWeather();
+    this.checkDarkMode(); // Verificar el modo oscuro al inicializar
   }
 
   getWeather() {
@@ -51,4 +53,16 @@ export class HubAlumnoPage implements OnInit {
         this.weather = 'No se pudo obtener el clima';
       });
   }
+
+  toggleDarkMode() {
+    const body = document.body;
+    body.classList.toggle('dark-theme');
+    this.isDarkMode = body.classList.contains('dark-theme');
+  }
+
+  checkDarkMode() {
+    const body = document.body;
+    this.isDarkMode = body.classList.contains('dark-theme');
+  }
 }
+  

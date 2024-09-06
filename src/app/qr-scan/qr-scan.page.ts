@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Html5Qrcode } from 'html5-qrcode';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-qr-scan',
@@ -10,7 +11,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 export class QrScanPage implements OnInit, OnDestroy {
   private html5QrCode!: Html5Qrcode; // Usar operador de aserción no nula
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private alertController: AlertController) {}
 
   ngOnInit() {
     this.html5QrCode = new Html5Qrcode("qr-reader");
@@ -22,9 +23,9 @@ export class QrScanPage implements OnInit, OnDestroy {
         fps: 10, // Frames por segundo
         qrbox: { width: 250, height: 250 } // Tamaño del cuadro de escaneo
       },
-      qrCodeMessage => {
+      async qrCodeMessage => {
         // Esto se llama cuando se escanea un código QR
-        document.getElementById("qr-reader-results")!.innerText = qrCodeMessage;
+        await this.showSuccessMessage();
       },
       errorMessage => {
         // Manejo de errores
@@ -47,5 +48,21 @@ export class QrScanPage implements OnInit, OnDestroy {
   irinicio() {
     this.router.navigate(['/home']);
   }
-}
 
+  // Muestra un mensaje de éxito y redirige a hub-alumno
+  async showSuccessMessage() {
+    const alert = await this.alertController.create({
+      header: '¡Éxito!',
+      message: '¡Asistencia registrada con éxito!',
+      buttons: ['OK']
+    });
+
+    await alert.present();
+
+    // Redirige después de que el usuario presione "OK"
+    await alert.onDidDismiss();
+
+    // Redirige a hub-alumno después del mensaje
+    this.router.navigate(['/hub-alumno']);
+  }
+}
