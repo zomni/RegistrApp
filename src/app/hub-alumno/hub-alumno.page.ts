@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { MenuController } from '@ionic/angular'; // Importa MenuController
 import { formatDate } from '@angular/common';
 
 @Component({
@@ -9,16 +11,28 @@ import { formatDate } from '@angular/common';
 export class HubAlumnoPage implements OnInit {
   currentDate: string;
   weather: string;
-  isDarkMode: boolean = false;
 
-  constructor() {
+  constructor(private router: Router, private menuController: MenuController) { // Inyecta MenuController
     this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
     this.weather = 'Cargando...';
   }
 
   ngOnInit() {
     this.getWeather();
-    this.checkDarkMode(); // Verificar el modo oscuro al inicializar
+  }
+
+  toggleDarkMode() {
+    const currentMode = document.body.getAttribute('color-mode');
+    const newMode = currentMode === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('color-mode', newMode);
+  }
+
+  async logout() {
+    // Cierra el menú antes de redirigir
+    await this.menuController.close();
+
+    // Luego redirige al usuario a la página de login
+    this.router.navigate(['/login']);
   }
 
   getWeather() {
@@ -53,16 +67,4 @@ export class HubAlumnoPage implements OnInit {
         this.weather = 'No se pudo obtener el clima';
       });
   }
-
-  toggleDarkMode() {
-    const body = document.body;
-    body.classList.toggle('dark-theme');
-    this.isDarkMode = body.classList.contains('dark-theme');
-  }
-
-  checkDarkMode() {
-    const body = document.body;
-    this.isDarkMode = body.classList.contains('dark-theme');
-  }
 }
-  
