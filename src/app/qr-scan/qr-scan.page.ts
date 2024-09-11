@@ -10,23 +10,20 @@ import { AlertController } from '@ionic/angular';
 })
 export class QrScanPage implements OnInit, OnDestroy {
   private html5QrCode!: Html5Qrcode;
-  private isScanning: boolean = true; // Bandera para controlar el escaneo
-
+  private isScanning: boolean = true;
   constructor(private router: Router, private alertController: AlertController) {}
 
   ngOnInit() {
     this.html5QrCode = new Html5Qrcode("qr-reader");
 
-    // Inicia el escáner de QR
     this.html5QrCode.start(
-      { facingMode: "environment" }, // Usa la cámara trasera
+      { facingMode: "environment" },
       {
-        fps: 10, // Frames por segundo
-        qrbox: { width: 250, height: 250 } // Tamaño del cuadro de escaneo
+        fps: 10,
+        qrbox: { width: 250, height: 250 }
       },
       async qrCodeMessage => {
         if (this.isScanning) {
-          // Detener el escáner inmediatamente después de escanear
           this.isScanning = false;
           this.html5QrCode.stop().then(() => {
             console.log("Escaneo detenido");
@@ -34,7 +31,6 @@ export class QrScanPage implements OnInit, OnDestroy {
             console.error("Error al detener el escáner", err);
           });
 
-          // Mostrar mensaje de éxito
           await this.showSuccessMessage();
         }
       },
@@ -46,9 +42,7 @@ export class QrScanPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
-    // Detén el escáner cuando se destruye el componente
-    if (this.html5QrCode && this.isScanning) {
+  ngOnDestroy() {    if (this.html5QrCode && this.isScanning) {
       this.html5QrCode.stop().catch(err => {
         console.error(`Error al detener el escáner: ${err}`);
       });
@@ -59,7 +53,6 @@ export class QrScanPage implements OnInit, OnDestroy {
     this.router.navigate(['/home']);
   }
 
-  // Muestra un mensaje de éxito y redirige a hub-alumno
   async showSuccessMessage() {
     const alert = await this.alertController.create({
       header: '¡Éxito!',
@@ -69,10 +62,8 @@ export class QrScanPage implements OnInit, OnDestroy {
 
     await alert.present();
 
-    // Redirige después de que el usuario presione "OK"
     await alert.onDidDismiss();
 
-    // Redirige a hub-alumno después del mensaje
     this.router.navigate(['/hub-alumno']);
   }
 }

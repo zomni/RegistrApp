@@ -15,13 +15,13 @@
   }
   
   .fab-space {
-    width: 70px; /* Espacio para el botón central */
+    width: 70px;
   }
   
   ion-fab {
     position: fixed;
     bottom: 0;
-    transform: translateY(-30%); /* Levantar el botón sobre el footer */
+    transform: translateY(-30%)
   }
   
   ion-fab-button {

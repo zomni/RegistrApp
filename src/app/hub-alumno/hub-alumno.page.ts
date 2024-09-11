@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController } from '@ionic/angular'; // Importa MenuController
+import { MenuController } from '@ionic/angular';
 import { formatDate } from '@angular/common';
 
 @Component({
@@ -11,8 +11,9 @@ import { formatDate } from '@angular/common';
 export class HubAlumnoPage implements OnInit {
   currentDate: string;
   weather: string;
+  isDarkMode: boolean = false;
 
-  constructor(private router: Router, private menuController: MenuController) { // Inyecta MenuController
+  constructor(private router: Router, private menuController: MenuController) {
     this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
     this.weather = 'Cargando...';
   }
@@ -22,16 +23,19 @@ export class HubAlumnoPage implements OnInit {
   }
 
   toggleDarkMode() {
-    const currentMode = document.body.getAttribute('color-mode');
-    const newMode = currentMode === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('color-mode', newMode);
+    const body = document.body;
+    body.classList.toggle('dark-theme');
+    this.isDarkMode = body.classList.contains('dark-theme');
+  }
+
+  checkDarkMode() {
+    const body = document.body;
+    this.isDarkMode = body.classList.contains('dark-theme');
   }
 
   async logout() {
-    // Cierra el menú antes de redirigir
     await this.menuController.close();
 
-    // Luego redirige al usuario a la página de login
     this.router.navigate(['/login']);
   }
 
