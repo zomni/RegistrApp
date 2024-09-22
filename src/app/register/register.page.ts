@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { AuthService } from '../services/auth.service'; // Importa el servicio de autenticación
 
 @Component({
   selector: 'app-register',
@@ -12,7 +13,11 @@ export class RegisterPage {
   username: string = '';
   password: string = '';
 
-  constructor(private router: Router, private alertController: AlertController) {}
+  constructor(
+    private router: Router, 
+    private alertController: AlertController,
+    private authService: AuthService // Inyecta el servicio de autenticación
+  ) {}
 
   isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,6 +25,7 @@ export class RegisterPage {
   }
 
   async register() {
+    // Verifica que todos los campos estén completos
     if (this.email === '' || this.username === '' || this.password === '') {
       const alert = await this.alertController.create({
         header: 'Error',
@@ -30,6 +36,7 @@ export class RegisterPage {
       return;
     }
 
+    // Verifica que el correo tenga un formato válido
     if (!this.isValidEmail(this.email)) {
       const alert = await this.alertController.create({
         header: 'Error',
@@ -40,17 +47,36 @@ export class RegisterPage {
       return;
     }
 
-    const alert = await this.alertController.create({
-      header: 'Registro exitoso',
-      message: 'Tu cuenta ha sido registrada con éxito',
-      buttons: ['OK'],
-    });
-    await alert.present();
+    try {
+      // Llama al servicio de autenticación para crear un usuario con Firebase
+      const user = await this.authService.register(this.email, this.password);
 
-    this.email = '';
-    this.username = '';
-    this.password = '';
+      // Muestra un mensaje de éxito
+      const alert = await this.alertController.create({
+        header: 'Registro exitoso',
+        message: 'Tu cuenta ha sido registrada con éxito',
+        buttons: ['OK'],
+      });
+      await alert.present();
 
-    this.router.navigate(['/login']);
+      // Limpia los campos después del registro
+      this.email = '';
+      this.username = '';
+      this.password = '';
+
+      // Redirige al login después de registrar al usuario
+      this.router.navigate(['/login']);
+
+    } catch (error) {
+      // Convierte el error a tipo Error y muestra el mensaje de Firebase
+      const errorMessage = (error as Error).message;
+
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: errorMessage,
+        buttons: ['OK'],
+      });
+      await alert.present();
+    }
   }
 }
