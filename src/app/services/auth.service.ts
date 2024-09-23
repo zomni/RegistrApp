@@ -12,6 +12,7 @@ export class AuthService {
   async login(email: string, password: string): Promise<any> {
     try {
       const result = await this.afAuth.signInWithEmailAndPassword(email, password);
+      localStorage.setItem('isLoggedIn', 'true'); // Guarda el estado de inicio de sesión
       return result.user;
     } catch (error) {
       throw error; // Lanza el error para manejarlo en el componente
@@ -20,7 +21,8 @@ export class AuthService {
 
   // Método para cerrar sesión
   async logout(): Promise<void> {
-    return this.afAuth.signOut();
+    await this.afAuth.signOut();
+    localStorage.removeItem('isLoggedIn'); // Limpia el estado de autenticación
   }
 
   // Método para registrar nuevos usuarios
@@ -37,11 +39,11 @@ export class AuthService {
   async loginWithGoogle(): Promise<any> {
     const provider = new GoogleAuthProvider();
     try {
-        const result = await this.afAuth.signInWithPopup(provider);
-        localStorage.setItem('isLoggedIn', 'true'); // Actualiza el estado de inicio de sesión
-        return result.user;
+      const result = await this.afAuth.signInWithPopup(provider);
+      localStorage.setItem('isLoggedIn', 'true'); // Actualiza el estado de inicio de sesión
+      return result.user;
     } catch (error) {
-        throw error; // Lanza el error para manejarlo en el componente
+      throw error; // Lanza el error para manejarlo en el componente
     }
-}
+  }
 }

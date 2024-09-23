@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service'; // Importa el servicio de autenticación
@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth.service'; // Importa el servicio d
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   username: string = '';
   password: string = '';
 
@@ -18,10 +18,19 @@ export class LoginPage {
     private authService: AuthService // Inyecta el servicio de autenticación
   ) {}
 
+  ngOnInit() {
+    // Verifica si el usuario ya está autenticado
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
+      this.router.navigate(['/hub-alumno']); // Redirige al hub-alumno si ya está autenticado
+    }
+  }
+
   async login() {
     try {
       const user = await this.authService.login(this.username, this.password);
       if (user) {
+        localStorage.setItem('isLoggedIn', 'true'); // Guardar el estado de autenticación
         this.router.navigate(['/hub-alumno']); // Redirige al hub si el login es exitoso
       }
     } catch (error) {
@@ -39,6 +48,7 @@ export class LoginPage {
     try {
       const user = await this.authService.loginWithGoogle(); // Llama al método de autenticación de Google
       if (user) {
+        localStorage.setItem('isLoggedIn', 'true'); // Guardar el estado de autenticación
         this.router.navigate(['/hub-alumno']); // Redirige al hub si el login es exitoso
       }
     } catch (error) {
