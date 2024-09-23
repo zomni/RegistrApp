@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { formatDate } from '@angular/common';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-hub-alumno',
@@ -13,12 +14,18 @@ export class HubAlumnoPage implements OnInit {
   weather: string;
   isDarkMode: boolean = false;
 
-  constructor(private router: Router, private menuController: MenuController) {
+  constructor(private router: Router, private menuController: MenuController, private authService: AuthService) {
     this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
     this.weather = 'Cargando...';
   }
 
   ngOnInit() {
+    // Verificar si el usuario está autenticado
+    if (!localStorage.getItem('isLoggedIn')) {
+      this.router.navigate(['/login']); // Redirigir a login si no está autenticado
+    }
+  
+    // Cargar el clima y otras funcionalidades
     this.getWeather();
   }
 
@@ -34,10 +41,11 @@ export class HubAlumnoPage implements OnInit {
   }
 
   async logout() {
+    await this.authService.logout();
+    localStorage.removeItem('isLoggedIn'); // Limpia el estado de inicio de sesión
     await this.menuController.close();
-
     this.router.navigate(['/login']);
-  }
+}
 
   getWeather() {
     const lat = -33.49936946781729;
