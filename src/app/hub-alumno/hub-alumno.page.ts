@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { formatDate } from '@angular/common';
 
@@ -11,15 +11,22 @@ import { formatDate } from '@angular/common';
 export class HubAlumnoPage implements OnInit {
   currentDate: string;
   weather: string;
+  username: string = '';
   isDarkMode: boolean = false;
 
-  constructor(private router: Router, private menuController: MenuController) {
+  constructor(private router: Router, private menuController: MenuController, private activatedRoute: ActivatedRoute,) {
     this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
     this.weather = 'Cargando...';
   }
 
   ngOnInit() {
     this.getWeather();
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['username']) {
+        this.username = params['username'];
+      }
+    });
   }
 
   toggleDarkMode() {
