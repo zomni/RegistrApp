@@ -1,35 +1,46 @@
 import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth'; // Importa AngularFireAuth para autenticación
-import { AngularFirestore } from '@angular/fire/compat/firestore'; // Importa Firestore para almacenar datos adicionales
-import { GoogleAuthProvider } from 'firebase/auth'; // Importa GoogleAuthProvider para login con Google
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { GoogleAuthProvider } from 'firebase/auth';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(
-    private afAuth: AngularFireAuth, // Inyección de servicio de autenticación
-    private firestore: AngularFirestore // Inyección de servicio de Firestore
-  ) {}
+  // Sujeto para observar el estado del usuario
+  private userSubject = new BehaviorSubject<any>(null);
+  user$ = this.userSubject.asObservable(); // Observable para suscribirse
 
-  // Método para iniciar sesión con Firebase Authentication
+  constructor(
+    private afAuth: AngularFireAuth,
+    private firestore: AngularFirestore
+  ) {
+    // Verificar el estado de autenticación al inicializar el servicio
+    this.afAuth.onAuthStateChanged((user) => {
+      if (user) {
+        this.userSubject.next(user); // Actualiza el sujeto si el usuario está autenticado
+        localStorage.setItem('isLoggedIn', 'true'); // Almacena el estado de inicio de sesión
+      } else {
+        this.userSubject.next(null); // Si no hay usuario, establece el sujeto a null
+        localStorage.removeItem('isLoggedIn'); // Elimina el estado de inicio de sesión
+      }
+    });
+  }
+
   async login(email: string, password: string): Promise<any> {
     try {
       const result = await this.afAuth.signInWithEmailAndPassword(email, password);
-      localStorage.setItem('isLoggedIn', 'true'); // Guarda el estado de inicio de sesión
       return result.user;
     } catch (error) {
-      throw error; // Lanza el error para manejarlo en el componente
+      throw error;
     }
   }
 
-  // Método para cerrar sesión
   async logout(): Promise<void> {
     await this.afAuth.signOut();
-    localStorage.removeItem('isLoggedIn'); // Limpia el estado de autenticación
   }
 
-  // Método para registrar nuevos usuarios y almacenar datos adicionales en Firestore
   async register(
     email: string, 
     password: string, 
@@ -39,11 +50,9 @@ export class AuthService {
     address: string
   ): Promise<any> {
     try {
-      // Crear usuario en Firebase Authentication
       const result = await this.afAuth.createUserWithEmailAndPassword(email, password);
       const uid = result.user?.uid;
 
-      // Almacenar datos adicionales en Firestore usando el uid del usuario
       if (uid) {
         await this.firestore.collection('users').doc(uid).set({
           uid,
@@ -61,19 +70,16 @@ export class AuthService {
     }
   }
 
-  // Método para iniciar sesión con Google
   async loginWithGoogle(): Promise<any> {
     const provider = new GoogleAuthProvider();
     try {
       const result = await this.afAuth.signInWithPopup(provider);
-      localStorage.setItem('isLoggedIn', 'true'); // Actualiza el estado de inicio de sesión
       return result.user;
     } catch (error) {
-      throw error; // Lanza el error para manejarlo en el componente
+      throw error;
     }
   }
 
-  // Método para restablecer contraseña
   async resetPassword(email: string): Promise<void> {
     try {
       await this.afAuth.sendPasswordResetEmail(email);
@@ -82,17 +88,15 @@ export class AuthService {
     }
   }
 
-  // Método para obtener la información del usuario desde Firestore
   async getUserData(uid: string): Promise<any> {
     try {
       const userDoc = await this.firestore.collection('users').doc(uid).get().toPromise();
-      return userDoc?.data(); // Devuelve los datos del usuario almacenados en Firestore
+      return userDoc?.data();
     } catch (error) {
       throw error;
     }
   }
 
-  // Método para actualizar los datos adicionales del usuario
   async updateUserData(
     uid: string, 
     name: string, 
