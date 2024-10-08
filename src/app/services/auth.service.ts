@@ -31,6 +31,19 @@ export class AuthService {
   async login(email: string, password: string): Promise<any> {
     try {
       const result = await this.afAuth.signInWithEmailAndPassword(email, password);
+      const uid = result.user?.uid;
+      
+      if (uid) {
+        const userDoc = await this.firestore.collection('users').doc(uid).get().toPromise();
+        const userData = userDoc?.data();
+        
+        if (userData) {
+          // Actualiza localStorage con la información correcta del usuario desde Firestore
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userData', JSON.stringify(userData)); // Guarda los datos reales del usuario
+        }
+      }
+      
       return result.user;
     } catch (error) {
       throw error;

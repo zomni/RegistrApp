@@ -13,6 +13,7 @@ export class HubAlumnoPage implements OnInit {
   currentDate: string;
   weather: string;
   isDarkMode: boolean = false;
+  userName: string = '';
 
   constructor(private router: Router, private menuController: MenuController, private authService: AuthService) {
     this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
@@ -23,10 +24,17 @@ export class HubAlumnoPage implements OnInit {
     // Verificar si el usuario está autenticado
     if (!localStorage.getItem('isLoggedIn')) {
       this.router.navigate(['/login']); // Redirigir a login si no está autenticado
+    } else {
+      this.loadUserData(); // Cargar datos del usuario
     }
   
     // Cargar el clima y otras funcionalidades
     this.getWeather();
+  }
+
+  loadUserData() {
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}'); // Recuperar datos del usuario del localStorage
+    this.userName = userData.name || 'Usuario'; // Asignar el nombre del usuario, o 'Usuario' si no existe
   }
 
   toggleDarkMode() {
@@ -42,7 +50,8 @@ export class HubAlumnoPage implements OnInit {
 
   async logout() {
     await this.authService.logout();
-    localStorage.removeItem('isLoggedIn'); // Limpia el estado de inicio de sesión
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userData'); // Limpia el estado de inicio de sesión
     await this.menuController.close();
     this.router.navigate(['/login']);
 }
