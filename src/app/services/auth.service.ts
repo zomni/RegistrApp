@@ -51,7 +51,14 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
-    await this.afAuth.signOut();
+    try {
+      await this.afAuth.signOut();
+      localStorage.removeItem('isLoggedIn'); // Elimina el estado de inicio de sesión
+      localStorage.removeItem('userData'); // Elimina los datos del usuario del localStorage
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      throw error; // Manejar el error de logout
+    }
   }
 
   async register(
@@ -87,9 +94,34 @@ export class AuthService {
     const provider = new GoogleAuthProvider();
     try {
       const result = await this.afAuth.signInWithPopup(provider);
-      return result.user;
+      const user = result.user;
+  
+      if (user) {
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "Usuario sin nombre",
+          phoneNumber: user.phoneNumber || "No disponible",
+          address: "Dirección no proporcionada" // Puedes solicitarla más adelante si es necesario
+        };
+  
+        // Verifica si el usuario ya está en la base de datos
+        const userDoc = await this.firestore.collection('users').doc(user.uid).get().toPromise();
+        
+        if (!userDoc?.exists) {
+          // Si el usuario no existe, crea un nuevo documento en Firestore
+          await this.firestore.collection('users').doc(user.uid).set(userData);
+        }
+  
+        localStorage.setItem('isLoggedIn', 'true'); // Guardar estado de inicio de sesión
+        localStorage.setItem('userData', JSON.stringify(userData)); // Almacenar datos del usuario localmente
+  
+        return user; // Devuelve el usuario autenticado
+      } else {
+        throw new Error('Error al autenticar el usuario');
+      }
     } catch (error) {
-      throw error;
+      throw error; // Maneja el error en el componente de login
     }
   }
 

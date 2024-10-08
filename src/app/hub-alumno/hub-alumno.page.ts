@@ -49,12 +49,13 @@ export class HubAlumnoPage implements OnInit {
   }
 
   async logout() {
-    await this.authService.logout();
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userData'); // Limpia el estado de inicio de sesión
-    await this.menuController.close();
-    this.router.navigate(['/login']);
-}
+    await this.authService.logout(); // Llama al servicio de autenticación para cerrar sesión
+    localStorage.removeItem('isLoggedIn'); // Limpia el estado de inicio de sesión
+    localStorage.removeItem('userData'); // Limpia los datos del usuario del localStorage
+    this.userName = ''; // Limpia el nombre del usuario almacenado en la variable local
+    await this.menuController.close(); // Cierra el menú lateral si está abierto
+    this.router.navigate(['/login']); // Redirige al usuario a la página de login
+  }
 
   getWeather() {
     const lat = -33.49936946781729;
