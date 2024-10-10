@@ -74,6 +74,7 @@ export class AuthService {
       const uid = result.user?.uid;
 
       if (uid) {
+        // Guarda los datos del usuario en Firestore
         await this.firestore.collection('users').doc(uid).set({
           uid,
           email,
@@ -82,6 +83,10 @@ export class AuthService {
           phoneNumber,
           address,
         });
+
+        // Almacena la información del nuevo usuario en localStorage
+        const userData = { uid, email, name, lastName, phoneNumber, address };
+        localStorage.setItem('userData', JSON.stringify(userData)); // Almacena los datos del usuario
       }
 
       return result.user;
