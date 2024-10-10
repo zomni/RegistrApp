@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard'; // Guard para rutas autenticadas
 import { NoAuthGuard } from './guards/no-auth.guard'; // Guard para rutas no autenticadas
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component'; // Importa el componente 404
 
 const routes: Routes = [
   {
@@ -38,6 +39,10 @@ const routes: Routes = [
     loadChildren: () => import('./hub-alumno/hub-alumno.module').then(m => m.HubAlumnoPageModule),
     canActivate: [AuthGuard] // Protege esta ruta solo para usuarios autenticados
   },
+  {
+    path: '**', // Ruta wildcard para manejar páginas no encontradas
+    component: PageNotFoundComponent, // Redirige a la página 404
+  }
 ];
 
 @NgModule({
