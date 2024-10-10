@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { formatDate } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { WeatherService } from '../services/weather.service';
+import { DateService } from '../services/date.service';
 
 @Component({
   selector: 'app-hub-alumno',
@@ -15,12 +16,18 @@ export class HubAlumnoPage implements OnInit {
   isDarkMode: boolean = false;
   userName: string = '';
 
-  constructor(private router: Router, private menuController: MenuController, private authService: AuthService) {
-    this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
+  constructor(
+    private router: Router,
+    private menuController: MenuController,
+    private authService: AuthService,
+    private weatherService: WeatherService,
+    private dateService: DateService
+  ) {
+    this.currentDate = this.dateService.getCurrentDate(); // Obtén la fecha actual desde el servicio
     this.weather = 'Cargando...';
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     // Verificar si el usuario está autenticado
     if (!localStorage.getItem('isLoggedIn')) {
       this.router.navigate(['/login']); // Redirigir a login si no está autenticado
@@ -28,7 +35,7 @@ export class HubAlumnoPage implements OnInit {
       this.loadUserData(); // Cargar datos del usuario
     }
   
-    // Cargar el clima y otras funcionalidades
+    // Cargar el clima
     this.getWeather();
   }
 
@@ -57,36 +64,9 @@ export class HubAlumnoPage implements OnInit {
     this.router.navigate(['/login']); // Redirige al usuario a la página de login
   }
 
-  getWeather() {
+  async getWeather() {
     const lat = -33.49936946781729;
     const lon = -70.6165073767097;
-    this.fetchWeather(lat, lon);
-  }
-
-  fetchWeather(lat: number, lon: number) {
-    const apiKey = '88f2cbd5172e9f1896f6553ba54de122';
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=es&units=metric`;
-
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.main && data.weather && data.name) {
-          const temperature = data.main.temp.toFixed(0);
-          const weatherDescription = data.weather[0].description;
-          const cityName = data.name;
-          this.weather = `${cityName}: ${temperature}°C, ${weatherDescription.charAt(0).toUpperCase() + weatherDescription.slice(1)}`;
-        } else {
-          this.weather = 'Datos del clima no disponibles';
-        }
-      })
-      .catch((error) => {
-        console.error('Error al obtener el clima:', error);
-        this.weather = 'No se pudo obtener el clima';
-      });
+    this.weather = await this.weatherService.getWeather(lat, lon); // Obtiene el clima desde el servicio
   }
 }
