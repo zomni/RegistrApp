@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-import { AuthService } from '../services/auth.service'; // Asegúrate de que la ruta sea correcta
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -16,91 +16,62 @@ export class RegisterPage {
   phoneNumber: string = '';
   address: string = '';
 
+  subjects: string[] = [
+    "Matemáticas Básicas", "Física General", "Química General", 
+    "Inglés", "Comunicación", "Fundamentos de Programación", 
+    "Sistemas Operativos", "Redes Computacionales", "Bases de Datos"
+  ];
+
   constructor(
     private authService: AuthService,
     private router: Router,
     private alertController: AlertController
   ) {}
 
-  // Método para validar el formato del correo electrónico
   isValidEmail(email: string): boolean {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Expresión regular básica para correos
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   }
 
-  // Método para manejar el registro del usuario
-  async register() {
-    // Verifica que todos los campos estén completos
-    if (
-      this.email === '' ||
-      this.password === '' ||
-      this.name === '' ||
-      this.lastName === '' ||
-      this.phoneNumber === '' ||
-      this.address === ''
-    ) {
-      const alert = await this.alertController.create({
-        header: 'Error',
-        message: 'Por favor, completa todos los campos',
-        buttons: ['OK'],
-      });
-      await alert.present();
-      return;
-    }
+  generateRandomSchedule(): any {
+    const schedule: { [key: string]: any } = {};
+    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const startTimes = ['08:00', '09:00', '10:00', '11:00'];
 
-    // Verifica que el correo tenga un formato válido
+    days.forEach(day => {
+      const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
+      const randomTime = startTimes[Math.floor(Math.random() * startTimes.length)];
+      schedule[day] = { subject: randomSubject, time: randomTime };
+    });
+
+    return schedule;
+  }
+
+  async register() {
     if (!this.isValidEmail(this.email)) {
-      const alert = await this.alertController.create({
-        header: 'Error',
-        message: 'Por favor, ingresa un correo válido',
-        buttons: ['OK'],
-      });
-      await alert.present();
+      await this.showAlert('Error', 'Por favor, ingresa un correo válido');
       return;
     }
 
     try {
-      // Llama al servicio de autenticación para crear un usuario con Firebase y guardar los datos adicionales
-      await this.authService.register(
-        this.email,
-        this.password,
-        this.name,
-        this.lastName,
-        this.phoneNumber,
-        this.address
+      const user = await this.authService.register(
+        this.email, this.password, this.name, 
+        this.lastName, this.phoneNumber, this.address
       );
+      const schedule = this.generateRandomSchedule();
+      await this.authService.saveUserSchedule(user.uid, schedule);
 
-      // Muestra un mensaje de éxito
-      const alert = await this.alertController.create({
-        header: 'Registro exitoso',
-        message: 'Tu cuenta ha sido registrada con éxito',
-        buttons: [{
-          text: 'OK',
-          handler: () => {
-            // Redirige al login después de cerrar el alert
-            this.router.navigate(['/login']);
-          },
-        }],
-      });
-      await alert.present();
-
-      // Limpia los campos después del registro
-      this.email = '';
-      this.password = '';
-      this.name = '';
-      this.lastName = '';
-      this.phoneNumber = '';
-      this.address = '';
+      await this.showAlert('Registro exitoso', 'Tu cuenta ha sido registrada con éxito');
+      this.router.navigate(['/login']);
     } catch (error) {
-      // Convierte el error a tipo Error y muestra el mensaje de Firebase
-      const errorMessage = (error as Error).message;
-
-      const alert = await this.alertController.create({
-        header: 'Error',
-        message: errorMessage,
-        buttons: ['OK'],
-      });
-      await alert.present();
+      await this.showAlert('Error', (error as Error).message);
     }
+  }
+
+  private async showAlert(header: string, message: string) {
+    const alert = await this.alertController.create({
+      header, message, buttons: ['OK']
+    });
+    await alert.present();
   }
 }

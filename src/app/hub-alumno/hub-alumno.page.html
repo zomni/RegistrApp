@@ -35,77 +35,17 @@
       <h3>{{ weather }}</h3>
     </div>
 
-    <table class="schedule-table">
-      <thead>
-        <tr>
-          <th>Día</th>
-          <th>Hora</th>
-          <th>Asignatura</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Lunes</td>
-          <td>08:00 - 10:00</td>
-          <td>Matemáticas</td>
-        </tr>
-        <tr>
-          <td>Lunes</td>
-          <td>10:15 - 12:15</td>
-          <td>Historia</td>
-        </tr>
-        <tr>
-          <td>Martes</td>
-          <td>08:00 - 10:00</td>
-          <td>Ciencias</td>
-        </tr>
-        <tr>
-          <td>Martes</td>
-          <td>10:15 - 12:15</td>
-          <td>Inglés</td>
-        </tr>
-        <tr>
-          <td>Miércoles</td>
-          <td>08:00 - 10:00</td>
-          <td>Programación</td>
-        </tr>
-        <tr>
-          <td>Miércoles</td>
-          <td>10:15 - 12:15</td>
-          <td>Diseño Gráfico</td>
-        </tr>
-        <tr>
-          <td>Jueves</td>
-          <td>08:00 - 10:00</td>
-          <td>Literatura</td>
-        </tr>
-        <tr>
-          <td>Jueves</td>
-          <td>10:15 - 12:15</td>
-          <td>Física</td>
-        </tr>
-        <tr>
-          <td>Viernes</td>
-          <td>08:00 - 10:00</td>
-          <td>Química</td>
-        </tr>
-        <tr>
-          <td>Viernes</td>
-          <td>10:15 - 12:15</td>
-          <td>Educación Física</td>
-        </tr>
-        <tr>
-          <td>Sábado</td>
-          <td>08:00 - 10:00</td>
-          <td>Ética</td>
-        </tr>
-        <tr>
-          <td>Sábado</td>
-          <td>10:15 - 12:15</td>
-          <td>Proyecto Final</td>
-        </tr>
-      </tbody>
-    </table>
+    <div>
+      <h2>Horario de Clases</h2>
+      <ion-list>
+        <ion-item *ngFor="let day of userSchedule | keyvalue">
+          <h3>{{ day.key }}</h3>
+          <p *ngFor="let class of day.value">
+            {{ class.subject }} - {{ class.time }}
+          </p>
+        </ion-item>
+      </ion-list>
+    </div>
   </ion-content>
 
   <ion-fab vertical="bottom" horizontal="center" slot="fixed">

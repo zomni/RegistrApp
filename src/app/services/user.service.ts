@@ -1,52 +1,78 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { AngularFirestore } from '@angular/fire/compat/firestore'; // Cambiado a compat
 import { User } from '../models/user.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class UserService {
-  constructor(private db: Firestore) {}
+  constructor(private firestore: AngularFirestore) {}
 
-  async getUsers(): Promise<User[]> {
-    const users: User[] = [];
-    const querySnapshot = await getDocs(collection(this.db, 'users'));
-    
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+  // Obtener un usuario por ID
+  async getUser(userId: string): Promise<User | null> {
+    const userRef = this.firestore.doc<User>(`users/${userId}`);
+    const userData = await userRef.get().toPromise();
 
-      // Usa la notación de corchetes para acceder a las propiedades
-      users.push(new User(
-        data['uid'], 
-        data['email'], 
-        data['name'], 
-        data['lastName'], 
-        data['phoneNumber'], 
-        data['address']
-      ));
-    });
-    
-    return users;
-  }
-
-  async getUser(uid: string): Promise<User | null> {
-    const userDoc = doc(this.db, 'users', uid);
-    const userSnapshot = await getDoc(userDoc);
-    
-    if (userSnapshot.exists()) {
-      const data = userSnapshot.data();
-
-      // Usa la notación de corchetes para acceder a las propiedades
+    if (userData && userData.exists) {
+      const data = userData.data()!;
       return new User(
-        data['uid'], 
-        data['email'], 
-        data['name'], 
-        data['lastName'], 
-        data['phoneNumber'], 
-        data['address']
+        data['uid'],
+        data['email'],
+        data['name'],
+        data['lastName'],
+        data['phoneNumber'],
+        data['address'],
+        data['schedule'] || []
       );
     }
-    
     return null;
+  }
+
+  // Crear un nuevo usuario
+  async createUser(
+    uid: string,
+    email: string,
+    name: string,
+    lastName: string,
+    phoneNumber: string,
+    address: string,
+    schedule: any[] = []
+  ): Promise<void> {
+    const user = new User(uid, email, name, lastName, phoneNumber, address, schedule);
+    const userRef = this.firestore.doc(`users/${uid}`);
+    await userRef.set(Object.assign({}, user));
+  }
+
+  // Actualizar un usuario
+  async updateUser(uid: string, updatedData: Partial<User>): Promise<void> {
+    const userRef = this.firestore.doc(`users/${uid}`);
+    await userRef.update(updatedData);
+  }
+
+  // Eliminar un usuario
+  async deleteUser(uid: string): Promise<void> {
+    const userRef = this.firestore.doc(`users/${uid}`);
+    await userRef.delete();
+  }
+
+  // Obtener todos los usuarios
+  async getAllUsers(): Promise<User[]> {
+    const users: User[] = [];
+    const userSnapshot = await this.firestore.collection<User>('users').get().toPromise();
+
+    userSnapshot?.forEach(doc => {
+      const data = doc.data();
+      users.push(new User(
+        data.uid,
+        data.email,
+        data.name,
+        data.lastName,
+        data.phoneNumber,
+        data.address,
+        data.schedule || []
+      ));
+    });
+
+    return users;
   }
 }

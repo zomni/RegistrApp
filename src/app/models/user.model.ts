@@ -5,7 +5,8 @@ export class User {
     name: string; 
     lastName: string; 
     phoneNumber: string; 
-    address: string; 
+    address: string;
+    schedule: any[] = []
   
     constructor(
       uid: string,
@@ -13,7 +14,8 @@ export class User {
       name: string,
       lastName: string,
       phoneNumber: string,
-      address: string
+      address: string,
+      schedule: any[]
     ) {
       this.uid = uid;
       this.email = email;
@@ -21,6 +23,7 @@ export class User {
       this.lastName = lastName;
       this.phoneNumber = phoneNumber;
       this.address = address;
+      this.schedule = schedule;
     }
   }
   

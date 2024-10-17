@@ -165,4 +165,15 @@ export class AuthService {
       throw error;
     }
   }
+
+  async saveUserSchedule(uid: string, schedule: any): Promise<void> {
+    try {
+      await this.firestore.collection('users').doc(uid).update({
+        schedule: schedule,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+  
 }
