@@ -16,7 +16,7 @@ export class HubAlumnoPage implements OnInit {
   weather: string = 'Cargando...';
   isDarkMode: boolean = false;
   userName: string = '';
-  userSchedule: any[] = [];
+  userSchedule: any[] = []; // Mantener como array para evitar errores en la vista
 
   constructor(
     private router: Router,
@@ -37,7 +37,8 @@ export class HubAlumnoPage implements OnInit {
 
       if (userId) {
         const user = await this.userService.getUser(userId);
-        this.userSchedule = user?.schedule || [];
+        this.userName = user?.name || 'Usuario';
+        this.userSchedule = this.convertScheduleToArray(user?.schedule || {});
       } else {
         this.router.navigate(['/login']);
       }
@@ -48,6 +49,15 @@ export class HubAlumnoPage implements OnInit {
     this.checkDarkMode();
     this.weather = await this.weatherService.getWeather(-33.5, -70.6);
   }
+
+  // Conversión del objeto a array para evitar el error con *ngFor
+  convertScheduleToArray(schedule: any): any[] {
+    return Object.keys(schedule).map(day => ({
+      day,
+      subjects: schedule[day]
+    }));
+  }
+  
 
   toggleDarkMode() {
     document.body.classList.toggle('dark-theme');

@@ -37,12 +37,15 @@
 
     <div>
       <h2>Horario de Clases</h2>
-      <ion-list>
-        <ion-item *ngFor="let day of userSchedule | keyvalue">
-          <h3>{{ day.key }}</h3>
-          <p *ngFor="let class of day.value">
-            {{ class.subject }} - {{ class.time }}
-          </p>
+      <ion-list *ngFor="let day of userSchedule">
+        <ion-item>
+          <ion-label>
+            <h2>{{ day.day }}</h2>
+            <div *ngFor="let subject of day.subjects">
+              <p>Asignatura: {{ subject.subject }}</p>
+              <p>Hora: {{ subject.time }}</p>
+            </div>
+          </ion-label>
         </ion-item>
       </ion-list>
     </div>

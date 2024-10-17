@@ -17,9 +17,29 @@ export class RegisterPage {
   address: string = '';
 
   subjects: string[] = [
-    "Matemáticas Básicas", "Física General", "Química General", 
-    "Inglés", "Comunicación", "Fundamentos de Programación", 
-    "Sistemas Operativos", "Redes Computacionales", "Bases de Datos"
+    "Matemáticas Básicas",
+    "Física General",
+    "Química General",
+    "Inglés",
+    "Comunicación",
+    "Fundamentos de Programación",
+    "Sistemas Operativos",
+    "Redes Computacionales",
+    "Bases de Datos",
+    "Matemáticas Discretas",
+    "Ingeniería de Software",
+    "Cálculo Integral",
+    "Álgebra Lineal",
+    "Teoría de Control",
+    "Física Aplicada",
+    "Biología",
+    "Estadística",
+    "Gestión de Proyectos",
+    "Emprendimiento",
+    "Metodología de la Investigación",
+    "Ética Profesional",
+    "Habilidades Blandas",
+    "Diseño Gráfico"
   ];
 
   constructor(
@@ -33,15 +53,22 @@ export class RegisterPage {
     return regex.test(email);
   }
 
+  // Modificación de la función para permitir múltiples asignaturas
   generateRandomSchedule(): any {
-    const schedule: { [key: string]: any } = {};
+    const schedule: { [key: string]: any[] } = {}; // Ahora cada día tiene un array de asignaturas
     const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const startTimes = ['08:00', '09:00', '10:00', '11:00'];
 
     days.forEach(day => {
-      const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
-      const randomTime = startTimes[Math.floor(Math.random() * startTimes.length)];
-      schedule[day] = { subject: randomSubject, time: randomTime };
+      const numSubjects = day === 'Sábado' ? 5 : 3; // Más asignaturas el sábado
+      schedule[day] = []; // Inicializamos un array vacío para cada día
+
+      for (let i = 0; i < numSubjects; i++) {
+        const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
+        const randomTime = startTimes[Math.floor(Math.random() * startTimes.length)];
+        
+        schedule[day].push({ subject: randomSubject, time: randomTime });
+      }
     });
 
     return schedule;
