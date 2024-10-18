@@ -17,29 +17,13 @@ export class RegisterPage {
   address: string = '';
 
   subjects: string[] = [
-    "Matemáticas Básicas",
-    "Física General",
-    "Química General",
-    "Inglés",
-    "Comunicación",
-    "Fundamentos de Programación",
-    "Sistemas Operativos",
-    "Redes Computacionales",
-    "Bases de Datos",
-    "Matemáticas Discretas",
-    "Ingeniería de Software",
-    "Cálculo Integral",
-    "Álgebra Lineal",
-    "Teoría de Control",
-    "Física Aplicada",
-    "Biología",
-    "Estadística",
-    "Gestión de Proyectos",
-    "Emprendimiento",
-    "Metodología de la Investigación",
-    "Ética Profesional",
-    "Habilidades Blandas",
-    "Diseño Gráfico"
+    "Matemáticas Básicas", "Física General", "Química General", "Inglés", 
+    "Comunicación", "Fundamentos de Programación", "Sistemas Operativos", 
+    "Redes Computacionales", "Bases de Datos", "Matemáticas Discretas", 
+    "Ingeniería de Software", "Cálculo Integral", "Álgebra Lineal", 
+    "Teoría de Control", "Física Aplicada", "Biología", "Estadística", 
+    "Gestión de Proyectos", "Emprendimiento", "Metodología de la Investigación", 
+    "Ética Profesional", "Habilidades Blandas", "Diseño Gráfico"
   ];
 
   constructor(
@@ -53,20 +37,38 @@ export class RegisterPage {
     return regex.test(email);
   }
 
-  // Modificación de la función para permitir múltiples asignaturas
   generateRandomSchedule(): any {
-    const schedule: { [key: string]: any[] } = {}; // Ahora cada día tiene un array de asignaturas
-    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const startTimes = ['08:00', '09:00', '10:00', '11:00'];
+    const schedule: { [key: string]: any[] } = {};
+    const weekdays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+    const saturday = ['Sábado'];
 
-    days.forEach(day => {
-      const numSubjects = day === 'Sábado' ? 5 : 3; // Más asignaturas el sábado
-      schedule[day] = []; // Inicializamos un array vacío para cada día
+    const weekdayTimes = [
+      '19:00', '19:30', '20:00', '20:30', 
+      '21:00', '21:30', '22:00', '22:30'
+    ];
 
-      for (let i = 0; i < numSubjects; i++) {
+    const saturdayTimes = [
+      '08:00', '09:00', '10:00', '11:00', 
+      '12:00', '13:00', '14:00', '15:00', 
+      '16:00', '17:00'
+    ];
+
+    // Generar horario para días de semana (3 asignaturas máximo)
+    weekdays.forEach(day => {
+      schedule[day] = [];
+      for (let i = 0; i < 3; i++) {
         const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
-        const randomTime = startTimes[Math.floor(Math.random() * startTimes.length)];
-        
+        const randomTime = weekdayTimes[Math.floor(Math.random() * weekdayTimes.length)];
+        schedule[day].push({ subject: randomSubject, time: randomTime });
+      }
+    });
+
+    // Generar horario para sábado (5 asignaturas máximo)
+    saturday.forEach(day => {
+      schedule[day] = [];
+      for (let i = 0; i < 5; i++) {
+        const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
+        const randomTime = saturdayTimes[Math.floor(Math.random() * saturdayTimes.length)];
         schedule[day].push({ subject: randomSubject, time: randomTime });
       }
     });
