@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { formatDate } from '@angular/common';
+import { AuthService } from '../services/auth.service';
+import { WeatherService } from '../services/weather.service';
+import { DateService } from '../services/date.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-hub-alumno',
@@ -10,72 +13,68 @@ import { formatDate } from '@angular/common';
 })
 export class HubAlumnoPage implements OnInit {
   currentDate: string;
-  weather: string;
-  username: string = '';
+  weather: string = 'Cargando...';
   isDarkMode: boolean = false;
+  userName: string = '';
+  userSchedule: any[] = []; // Array para el horario
 
-  constructor(private router: Router, private menuController: MenuController, private activatedRoute: ActivatedRoute,) {
-    this.currentDate = formatDate(new Date(), 'fullDate', 'es-ES');
-    this.weather = 'Cargando...';
+  constructor(
+    private router: Router,
+    private menuController: MenuController,
+    private authService: AuthService,
+    private weatherService: WeatherService,
+    private dateService: DateService,
+    private userService: UserService
+  ) {
+    this.currentDate = this.dateService.getCurrentDate();
   }
 
-  ngOnInit() {
-    this.getWeather();
+  async ngOnInit() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn) {
+      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+      const userId = userData?.uid;
 
-    this.activatedRoute.queryParams.subscribe(params => {
-      if (params['username']) {
-        this.username = params['username'];
+      if (userId) {
+        // Obtener usuario desde Firestore utilizando el servicio UserService
+        const user = await this.userService.getUser(userId);
+        
+        // Si el usuario existe, actualizar nombre y horario
+        if (user) {
+          this.userName = user.name || 'Usuario';
+          this.userSchedule = this.convertScheduleToArray(user.schedule || {});
+        }
+      } else {
+        this.router.navigate(['/login']);
       }
-    });
+    } else {
+      this.router.navigate(['/login']);
+    }
+
+    this.checkDarkMode();
+    this.weather = await this.weatherService.getWeather(-33.5, -70.6); // Santiago, Chile
+  }
+
+  // Convierte el objeto de horario en un array para evitar errores en la vista con *ngFor
+  convertScheduleToArray(schedule: any): any[] {
+    return Object.keys(schedule).map(day => ({
+      day,
+      subjects: schedule[day] || []
+    }));
   }
 
   toggleDarkMode() {
-    const body = document.body;
-    body.classList.toggle('dark-theme');
-    this.isDarkMode = body.classList.contains('dark-theme');
+    document.body.classList.toggle('dark-theme');
+    this.isDarkMode = !this.isDarkMode;
   }
 
   checkDarkMode() {
-    const body = document.body;
-    this.isDarkMode = body.classList.contains('dark-theme');
+    this.isDarkMode = document.body.classList.contains('dark-theme');
   }
 
   async logout() {
-    await this.menuController.close();
-
+    await this.authService.logout();
+    localStorage.clear();
     this.router.navigate(['/login']);
-  }
-
-  getWeather() {
-    const lat = -33.49936946781729;
-    const lon = -70.6165073767097;
-    this.fetchWeather(lat, lon);
-  }
-
-  fetchWeather(lat: number, lon: number) {
-    const apiKey = '88f2cbd5172e9f1896f6553ba54de122';
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&lang=es&units=metric`;
-
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.main && data.weather && data.name) {
-          const temperature = data.main.temp.toFixed(0);
-          const weatherDescription = data.weather[0].description;
-          const cityName = data.name;
-          this.weather = `${cityName}: ${temperature}°C, ${weatherDescription.charAt(0).toUpperCase() + weatherDescription.slice(1)}`;
-        } else {
-          this.weather = 'Datos del clima no disponibles';
-        }
-      })
-      .catch((error) => {
-        console.error('Error al obtener el clima:', error);
-        this.weather = 'No se pudo obtener el clima';
-      });
   }
 }

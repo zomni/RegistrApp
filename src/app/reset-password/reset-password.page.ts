@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 
 @Component({
   selector: 'app-reset-password',
@@ -9,28 +10,39 @@ import { AlertController } from '@ionic/angular';
 })
 export class ResetPasswordPage {
   username: string = '';
-  newPassword: string = '';
-  confirmPassword: string = '';
 
   constructor(private router: Router, private alertController: AlertController) {}
 
   async resetPassword() {
-    if (this.newPassword === this.confirmPassword && this.newPassword !== '') {
+    const auth = getAuth();
+
+    // Verifica que el campo de correo no esté vacío
+    if (this.username === '') {
       const alert = await this.alertController.create({
-        header: 'Contraseña cambiada',
-        message: 'Tu contraseña ha sido cambiada con éxito',
+        header: 'Error',
+        message: 'El correo institucional debe ser ingresado.',
         buttons: ['OK'],
       });
       await alert.present();
-      this.username = '';
-      this.newPassword = '';
-      this.confirmPassword = '';
+      return;
+    }
+
+    try {
+      // Envía un correo electrónico para restablecer la contraseña
+      await sendPasswordResetEmail(auth, this.username);
+      const alert = await this.alertController.create({
+        header: 'Correo enviado',
+        message: 'Se ha enviado un correo para restablecer tu contraseña.',
+        buttons: ['OK'],
+      });
+      await alert.present();
+      this.username = ''; // Limpia el campo de entrada
       
-      this.router.navigate(['/login']);
-    } else {
+      this.router.navigate(['/login']); // Redirige a la página de inicio de sesión
+    } catch (error) {
       const alert = await this.alertController.create({
         header: 'Error',
-        message: 'Las contraseñas no coinciden o están vacías',
+        message: 'No se pudo enviar el correo. Asegúrate de que el correo institucional esté correcto.',
         buttons: ['OK'],
       });
       await alert.present();
