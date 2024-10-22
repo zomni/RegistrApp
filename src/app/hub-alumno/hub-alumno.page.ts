@@ -16,7 +16,7 @@ export class HubAlumnoPage implements OnInit {
   weather: string = 'Cargando...';
   isDarkMode: boolean = false;
   userName: string = '';
-  userSchedule: any[] = []; // Mantener como array para evitar errores en la vista
+  userSchedule: any[] = []; // Array para el horario
 
   constructor(
     private router: Router,
@@ -36,9 +36,14 @@ export class HubAlumnoPage implements OnInit {
       const userId = userData?.uid;
 
       if (userId) {
+        // Obtener usuario desde Firestore utilizando el servicio UserService
         const user = await this.userService.getUser(userId);
-        this.userName = user?.name || 'Usuario';
-        this.userSchedule = this.convertScheduleToArray(user?.schedule || {});
+        
+        // Si el usuario existe, actualizar nombre y horario
+        if (user) {
+          this.userName = user.name || 'Usuario';
+          this.userSchedule = this.convertScheduleToArray(user.schedule || {});
+        }
       } else {
         this.router.navigate(['/login']);
       }
@@ -47,17 +52,16 @@ export class HubAlumnoPage implements OnInit {
     }
 
     this.checkDarkMode();
-    this.weather = await this.weatherService.getWeather(-33.5, -70.6);
+    this.weather = await this.weatherService.getWeather(-33.5, -70.6); // Santiago, Chile
   }
 
-  // Conversión del objeto a array para evitar el error con *ngFor
+  // Convierte el objeto de horario en un array para evitar errores en la vista con *ngFor
   convertScheduleToArray(schedule: any): any[] {
     return Object.keys(schedule).map(day => ({
       day,
-      subjects: schedule[day]
+      subjects: schedule[day] || []
     }));
   }
-  
 
   toggleDarkMode() {
     document.body.classList.toggle('dark-theme');

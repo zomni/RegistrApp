@@ -9,7 +9,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class AuthService {
   // Sujeto para observar el estado del usuario
-  private userSubject = new BehaviorSubject<any>(null);
+  public userSubject = new BehaviorSubject<any>(null);
   user$ = this.userSubject.asObservable(); // Observable para suscribirse
 
   constructor(
@@ -21,6 +21,7 @@ export class AuthService {
       if (user) {
         this.userSubject.next(user); // Actualiza el sujeto si el usuario está autenticado
         localStorage.setItem('isLoggedIn', 'true'); // Almacena el estado de inicio de sesión
+        this.getUserData(user.uid); // Carga los datos del usuario
       } else {
         this.userSubject.next(null); // Si no hay usuario, establece el sujeto a null
         localStorage.removeItem('isLoggedIn'); // Elimina el estado de inicio de sesión
@@ -38,9 +39,10 @@ export class AuthService {
         const userData = userDoc?.data();
         
         if (userData) {
-          // Actualiza localStorage con la información correcta del usuario desde Firestore
           localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userData', JSON.stringify(userData)); // Guarda los datos reales del usuario
+          localStorage.setItem('userData', JSON.stringify(userData)); 
+          
+          this.userSubject.next(userData); // Emite el nuevo usuario autenticado
         }
       }
       
@@ -48,18 +50,20 @@ export class AuthService {
     } catch (error) {
       throw error;
     }
-  }
+  }  
 
   async logout(): Promise<void> {
     try {
       await this.afAuth.signOut();
-      localStorage.removeItem('isLoggedIn'); // Elimina el estado de inicio de sesión
-      localStorage.removeItem('userData'); // Elimina los datos del usuario del localStorage
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userData');
+      
+      this.userSubject.next(null); // Emite null cuando se cierra sesión
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
-      throw error; // Manejar el error de logout
+      throw error;
     }
-  }
+  }  
 
   async register(
     email: string, 
@@ -87,6 +91,7 @@ export class AuthService {
         // Almacena la información del nuevo usuario en localStorage
         const userData = { uid, email, name, lastName, phoneNumber, address };
         localStorage.setItem('userData', JSON.stringify(userData)); // Almacena los datos del usuario
+        this.userSubject.next(userData); // Actualiza el BehaviorSubject
       }
 
       return result.user;
@@ -120,6 +125,7 @@ export class AuthService {
   
         localStorage.setItem('isLoggedIn', 'true'); // Guardar estado de inicio de sesión
         localStorage.setItem('userData', JSON.stringify(userData)); // Almacenar datos del usuario localmente
+        this.userSubject.next(userData); // Actualiza el BehaviorSubject con la información del usuario
   
         return user; // Devuelve el usuario autenticado
       } else {
@@ -175,5 +181,4 @@ export class AuthService {
       throw error;
     }
   }
-  
 }
