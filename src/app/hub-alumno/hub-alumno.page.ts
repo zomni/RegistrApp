@@ -17,6 +17,7 @@ export class HubAlumnoPage implements OnInit {
   isDarkMode: boolean = false;
   userName: string = '';
   userSchedule: any[] = []; // Array para el horario
+  daysOfWeek: string[] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
   constructor(
     private router: Router,
@@ -43,6 +44,7 @@ export class HubAlumnoPage implements OnInit {
         if (user) {
           this.userName = user.name || 'Usuario';
           this.userSchedule = this.convertScheduleToArray(user.schedule || {});
+          this.sortSchedule();
         }
       } else {
         this.router.navigate(['/login']);
@@ -61,6 +63,13 @@ export class HubAlumnoPage implements OnInit {
       day,
       subjects: schedule[day] || []
     }));
+  }
+
+  // Ordena el horario de clases según los días de la semana
+  sortSchedule() {
+    this.userSchedule.sort((a, b) => {
+      return this.daysOfWeek.indexOf(a.day.toLowerCase()) - this.daysOfWeek.indexOf(b.day.toLowerCase());
+    });
   }
 
   toggleDarkMode() {
