@@ -43,8 +43,7 @@ export class RegisterPage {
     const saturday = ['Sábado'];
 
     const weekdayTimes = [
-      '19:00', '19:30', '20:00', '20:30', 
-      '21:00', '21:30', '22:00', '22:30'
+      '19:00', '20:30', '21:30', '22:00'
     ];
 
     const saturdayTimes = [
@@ -56,20 +55,32 @@ export class RegisterPage {
     // Generar horario para días de semana (3 asignaturas máximo)
     weekdays.forEach(day => {
       schedule[day] = [];
-      for (let i = 0; i < 3; i++) {
+      const usedTimes = new Set<string>(); // Para verificar tiempos ya usados
+
+      while (schedule[day].length < 3) {
         const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
         const randomTime = weekdayTimes[Math.floor(Math.random() * weekdayTimes.length)];
-        schedule[day].push({ subject: randomSubject, time: randomTime });
+
+        if (!usedTimes.has(randomTime)) {
+          usedTimes.add(randomTime);
+          schedule[day].push({ subject: randomSubject, time: randomTime });
+        }
       }
     });
 
     // Generar horario para sábado (5 asignaturas máximo)
     saturday.forEach(day => {
       schedule[day] = [];
-      for (let i = 0; i < 5; i++) {
+      const usedTimes = new Set<string>(); // Para verificar tiempos ya usados
+
+      while (schedule[day].length < 5) {
         const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
         const randomTime = saturdayTimes[Math.floor(Math.random() * saturdayTimes.length)];
-        schedule[day].push({ subject: randomSubject, time: randomTime });
+
+        if (!usedTimes.has(randomTime)) {
+          usedTimes.add(randomTime);
+          schedule[day].push({ subject: randomSubject, time: randomTime });
+        }
       }
     });
 
@@ -89,9 +100,11 @@ export class RegisterPage {
       );
       const schedule = this.generateRandomSchedule();
       await this.authService.saveUserSchedule(user.uid, schedule);
-
-      await this.showAlert('Registro exitoso', 'Tu cuenta ha sido registrada con éxito');
-      this.router.navigate(['/login']);
+      
+      // Redirigir a la página de login
+      this.router.navigate(['/login']).then(() => {
+        window.location.reload(); // Fuerza la recarga de la página
+      });
     } catch (error) {
       await this.showAlert('Error', (error as Error).message);
     }

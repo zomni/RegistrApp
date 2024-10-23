@@ -33,27 +33,69 @@
   ion-fab-button ion-icon {
     font-size: 3em;
   }
-  
+  ion-list {
+  text-align: center; // Centra el texto en el ion-list
+}
+
+ion-item {
+  justify-content: center; // Centra el contenido del ion-item
+}
+
+ion-label {
+  display: flex; // Usa flexbox para centrar el contenido
+  flex-direction: column; // Alinear los elementos en columna
+  align-items: center; // Centra horizontalmente
+}
+
+
   .date-container {
-    text-align: center;
-    margin: 20px 0;
+    background-color: #D24D00; // Color de fondo deseado
+    border-radius: 0; // Sin esquinas
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Sombra para dar un poco de profundidad
+    text-align: center; // Centrar el texto
+  
+    h2 {
+      font-family: 'Roboto', sans-serif; // Cambia esta fuente a una más bonita según lo que desees
+      font-size: 24px; // Tamaño de fuente grande
+      margin: 0; // Quitar margen
+    }
+  
+    h3 {
+      font-family: 'Roboto', sans-serif; // Cambia esta fuente a una más bonita según lo que desees
+      font-size: 20px; // Tamaño de fuente grande
+      margin: 0; // Quitar margen
+    }
   }
   
-  .schedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+  .schedule-container {
+    padding: 16px;
+    background-color: var(--ion-background-color);
   }
   
-  .schedule-table th,
-  .schedule-table td {
-    border: 1px solid #6096BA;
+  .day-item {
+    margin-bottom: 16px;
     padding: 10px;
-    text-align: center;
+    border-radius: 8px;
+    background-color: var(--ion-color-light);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
-  .schedule-table th {
-    background-color: #D24D00;
-    color: white;
+  .day-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--ion-color-primary);
+  }
+  
+  .subject-item {
+    margin-top: 5px;
+  }
+  
+  .subject-name,
+  .subject-time {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--ion-color-dark);
   }
   
