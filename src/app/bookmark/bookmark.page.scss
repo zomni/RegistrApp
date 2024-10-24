@@ -1,0 +1,40 @@
+/* bookmark.page.scss */
+:host {
+    --ion-text-color: var(--ion-text-color);
+  }
+  
+  .header-title {
+    color: var(--ion-color-primary-contrast);
+  }
+  
+  .current-date {
+    color: white;
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .attendance-card {
+    background-color: var(--ion-background-color);
+    border: 1px solid var(--ion-color-primary);
+    border-radius: 10px;
+    margin: 10px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+  
+  .attendance-card ion-card-title {
+    font-weight: bold;
+    color: var(--ion-color-primary);
+  }
+  
+  .attendance-status {
+    font-size: 1.2em;
+    color: var(--ion-color-secondary);
+  }
+  
+  .footer-text {
+    text-align: center;
+    color: var(--ion-color-primary);
+    font-size: 0.9em;
+  }
+  

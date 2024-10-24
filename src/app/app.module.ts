@@ -16,6 +16,14 @@ import { environment } from '../environments/environment';
 // Importar el componente PageNotFound
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
+// Importar locale de español
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
+import { LOCALE_ID } from '@angular/core';
+
+// Registrar locale
+registerLocaleData(localeEs);
+
 @NgModule({
   declarations: [AppComponent, PageNotFoundComponent],
   imports: [
@@ -26,7 +34,8 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     AngularFireAuthModule,
     AngularFirestoreModule // Agregar Firestore
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, { provide: LOCALE_ID, useValue: 'es-ES' }
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
