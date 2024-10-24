@@ -82,6 +82,7 @@ export class HubAlumnoPage implements OnInit {
   }
 
   async logout() {
+    await this.menuController.close();
     await this.authService.logout();
     localStorage.clear();
     this.router.navigate(['/login']);
