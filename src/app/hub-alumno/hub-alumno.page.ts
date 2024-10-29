@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { WeatherService } from '../services/weather.service';
@@ -17,6 +17,8 @@ export class HubAlumnoPage implements OnInit {
   isDarkMode: boolean = false;
   userName: string = '';
   userSchedule: any[] = []; // Array para el horario
+  filteredSchedule: any[] = []; // Array para el horario filtrado
+  searchTerm: string = ''; // Término de búsqueda
   daysOfWeek: string[] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
   constructor(
@@ -45,6 +47,7 @@ export class HubAlumnoPage implements OnInit {
           this.userName = user.name || 'Usuario';
           this.userSchedule = this.convertScheduleToArray(user.schedule || {});
           this.sortSchedule();
+          this.filteredSchedule = [...this.userSchedule]; // Inicializa el array filtrado
         }
       } else {
         this.router.navigate(['/login']);
@@ -72,6 +75,17 @@ export class HubAlumnoPage implements OnInit {
     });
   }
 
+  // Filtrar el horario de clases basado en el término de búsqueda
+  filterSchedule(event: any) {
+    const searchTerm = this.searchTerm.toLowerCase();
+    this.filteredSchedule = this.userSchedule.filter(day => {
+      return (
+        day.day.toLowerCase().includes(searchTerm) || 
+        day.subjects.some((subject: any) => subject.subject.toLowerCase().includes(searchTerm))
+      );
+    });
+  }
+
   toggleDarkMode() {
     document.body.classList.toggle('dark-theme');
     this.isDarkMode = !this.isDarkMode;
@@ -80,8 +94,26 @@ export class HubAlumnoPage implements OnInit {
   checkDarkMode() {
     this.isDarkMode = document.body.classList.contains('dark-theme');
   }
+  
+  requestNotificationPermission() {
+    if ('Notification' in window) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          console.log('Permiso de notificación concedido.');
+          // Aquí puedes agregar lógica para manejar la suscripción a notificaciones
+        } else if (permission === 'denied') {
+          console.log('Permiso de notificación denegado.');
+        } else {
+          console.log('Permiso de notificación no decidido.');
+        }
+      });
+    } else {
+      console.log('Este navegador no soporta notificaciones.');
+    }
+  }
 
   async logout() {
+    await this.menuController.close();
     await this.authService.logout();
     localStorage.clear();
     this.router.navigate(['/login']);

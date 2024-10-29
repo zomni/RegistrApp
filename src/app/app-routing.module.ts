@@ -40,9 +40,20 @@ const routes: Routes = [
     canActivate: [AuthGuard] // Protege esta ruta solo para usuarios autenticados
   },
   {
+    path: 'profile',
+    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule),
+    canActivate: [AuthGuard] // Protege esta ruta solo para usuarios autenticados
+  },
+  {
+    path: 'bookmark',
+    loadChildren: () => import('./bookmark/bookmark.module').then( m => m.BookmarkPageModule),
+    canActivate: [AuthGuard] // Protege esta ruta solo para usuarios autenticados
+  },
+  {
     path: '**', // Ruta wildcard para manejar páginas no encontradas
     component: PageNotFoundComponent, // Redirige a la página 404
   }
+
 ];
 
 @NgModule({

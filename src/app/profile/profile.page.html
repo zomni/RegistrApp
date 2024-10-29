@@ -1,0 +1,47 @@
+<div class="ion-page" id="main-content">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>{{ userData.name }}</ion-title>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/"></ion-back-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Información Personal</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Nombre:</ion-label>
+          <ion-text>{{ userData.name || 'No disponible' }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Apellido:</ion-label>
+          <ion-text>{{ userData.lastName || 'No disponible' }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Correo Electrónico:</ion-label>
+          <ion-text>{{ userData.email || 'No disponible' }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Número de Teléfono:</ion-label>
+          <ion-text>{{ userData.phoneNumber || 'No disponible' }}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Dirección:</ion-label>
+          <ion-text>{{ userData.address || 'No disponible' }}</ion-text>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <p class="footer-text"></p>
+  </ion-toolbar>
+</ion-footer>

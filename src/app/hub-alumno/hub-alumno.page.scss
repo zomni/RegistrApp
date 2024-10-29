@@ -3,7 +3,8 @@
     justify-content: space-between;
     align-items: center;
     position: relative;
-    padding: 0 10px;
+    padding: 20px 10px;
+    height:60px;
   }
   
   ion-button {
@@ -49,12 +50,13 @@ ion-label {
 
 
   .date-container {
-    background-color: #D24D00; // Color de fondo deseado
+    background-color: #A41623; // Color de fondo deseado
     border-radius: 0; // Sin esquinas
     padding: 20px;
     margin: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Sombra para dar un poco de profundidad
     text-align: center; // Centrar el texto
+    --ion-text-color: var(--ion-text-color);
   
     h2 {
       font-family: 'Roboto', sans-serif; // Cambia esta fuente a una más bonita según lo que desees
