@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController, LoadingController } from '@ionic/angular';
+import { MenuController, LoadingController, AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { WeatherService } from '../services/weather.service';
 import { DateService } from '../services/date.service';
@@ -28,7 +28,8 @@ export class HubAlumnoPage implements OnInit {
     private weatherService: WeatherService,
     private dateService: DateService,
     private userService: UserService,
-    private loadingController: LoadingController // Inyectar LoadingController
+    private loadingController: LoadingController,
+    private alertController: AlertController // Inyectar AlertController
   ) {
     this.currentDate = this.dateService.getCurrentDate();
   }
@@ -122,12 +123,31 @@ export class HubAlumnoPage implements OnInit {
     } else {
       console.log('Este navegador no soporta notificaciones.');
     }
-  }
+  } 
 
   async logout() {
-    await this.menuController.close();
-    await this.authService.logout();
-    localStorage.clear();
-    this.router.navigate(['/login']);
+    // Mostrar el mensaje de confirmación
+    const alert = await this.alertController.create({
+      header: 'Cerrar Sesión',
+      message: '¿Estás seguro de que deseas cerrar sesión?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          handler: async () => {
+            await this.menuController.close();
+            await this.authService.logout();
+            localStorage.clear();
+            this.router.navigate(['/login']);
+          },
+        },
+      ],
+    });
+
+    // Mostrar el mensaje de alerta
+    await alert.present();
   }
 }
