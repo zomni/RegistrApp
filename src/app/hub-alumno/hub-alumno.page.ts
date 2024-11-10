@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'; 
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, LoadingController, AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
@@ -6,7 +6,7 @@ import { WeatherService } from '../services/weather.service';
 import { DateService } from '../services/date.service';
 import { UserService } from '../services/user.service';
 import { Geolocation } from '@capacitor/geolocation';
-import { Capacitor } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-hub-alumno',
@@ -29,6 +29,8 @@ export class HubAlumnoPage implements OnInit {
   targetLatitude: number = -33.62398953109721;
   targetLongitude: number = -70.70978787693707;
   radius: number = 100;
+
+  notificationsEnabled: boolean = false; // Estado del toggle de notificaciones
 
   constructor(
     private router: Router,
@@ -73,6 +75,12 @@ export class HubAlumnoPage implements OnInit {
       this.checkDarkMode();
       this.weather = await this.weatherService.getWeather(-33.5, -70.6);
       await this.checkLocationProximity(); // Verificar proximidad a la ubicación
+
+      // Cargar el estado de las notificaciones desde localStorage
+      const notificationsStatus = localStorage.getItem('notificationsEnabled');
+      if (notificationsStatus !== null) {
+        this.notificationsEnabled = JSON.parse(notificationsStatus);
+      }
     } finally {
       await loading.dismiss();
     }
@@ -109,23 +117,37 @@ export class HubAlumnoPage implements OnInit {
   checkDarkMode() {
     this.isDarkMode = document.body.classList.contains('dark-theme');
   }
-  
-  requestNotificationPermission() {
-    if (Capacitor.getPlatform() === 'android' && 'Notification' in window) {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          console.log('Permiso de notificación concedido en Android.');
-        } else if (permission === 'denied') {
-          console.log('Permiso de notificación denegado.');
-        } else {
-          console.log('Permiso de notificación no decidido.');
-        }
-      });
-    } else if (Capacitor.getPlatform() !== 'android') {
-      console.log('La solicitud de permiso de notificación solo está habilitada para Android.');
+
+  toggleNotifications() {
+    if (this.notificationsEnabled) {
+      this.requestNotificationPermission();
     } else {
-      console.log('Este navegador no soporta notificaciones.');
+      this.cancelNotificationPermission();
     }
+
+    // Guardar el estado del toggle para persistir entre sesiones
+    localStorage.setItem('notificationsEnabled', JSON.stringify(this.notificationsEnabled));
+  }
+
+  requestNotificationPermission() {
+    PushNotifications.requestPermissions().then(permission => {
+      if (permission.receive === 'granted') {
+        console.log('Permiso de notificación concedido.');
+        PushNotifications.register();
+      } else {
+        console.log('Permiso de notificación denegado.');
+      }
+    }).catch(error => {
+      console.error('Error al solicitar permisos de notificación:', error);
+    });
+  }
+
+  cancelNotificationPermission() {
+    PushNotifications.unregister().then(() => {
+      console.log('Notificaciones desactivadas.');
+    }).catch((error) => {
+      console.error('Error al desactivar las notificaciones:', error);
+    });
   }
 
   async logout() {
@@ -153,7 +175,6 @@ export class HubAlumnoPage implements OnInit {
 
   // Verifica la proximidad del usuario a las coordenadas objetivo
   async checkLocationProximity() {
-    // Muestra el loading
     const loading = await this.loadingController.create({
       message: 'Verificando ubicación...',
       duration: 1000 // Duración mínima de 3 segundos
@@ -179,8 +200,7 @@ export class HubAlumnoPage implements OnInit {
       console.error('Error obteniendo la ubicación:', error);
       this.locationMessage = 'No se pudo obtener la ubicación.';
     } finally {
-      // Espera a que pasen 3 segundos si la operación terminó antes
-      setTimeout(() => loading.dismiss(), 3000);
+      setTimeout(() => loading.dismiss(), 500);
     }
   }
 
