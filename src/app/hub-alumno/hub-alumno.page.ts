@@ -32,6 +32,14 @@ export class HubAlumnoPage implements OnInit {
 
   notificationsEnabled: boolean = false; // Estado del toggle de notificaciones
 
+  // Variable para alternar el formato
+  isTableFormat: boolean = false;
+
+  // Función para alternar entre el formato en tabla o en lista
+  toggleScheduleFormat() {
+    this.isTableFormat = !this.isTableFormat;
+  }
+
   constructor(
     private router: Router,
     private menuController: MenuController,

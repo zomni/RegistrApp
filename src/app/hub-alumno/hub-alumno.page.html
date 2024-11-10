@@ -56,22 +56,68 @@
 
     <div class="schedule-container">
       <h2>Horario de Clases</h2>
+
+      <!-- Botón para cambiar el formato del horario -->
+      <ion-button (click)="toggleScheduleFormat()">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </ion-button>
+
       <ion-searchbar 
         [(ngModel)]="searchTerm" 
         (ionInput)="filterSchedule($event)" 
         placeholder="Buscar por día o asignatura">
       </ion-searchbar>
-      <ion-list>
+
+      <!-- Formato en lista -->
+      <ion-list *ngIf="!isTableFormat">
         <ion-item *ngFor="let day of filteredSchedule" class="day-item">
           <ion-label>
             <h3 class="day-title">{{ day.day | titlecase }}</h3>
             <div *ngFor="let subject of day.subjects" class="subject-item">
               <p class="subject-name">Asignatura: {{ subject.subject }}</p>
               <p class="subject-time">Hora: {{ subject.time }}</p>
+              <p class="subject-room">Sala: {{ subject.sala }}</p>
+              <p class="subject-section">Sección: {{ subject.section }}</p>
             </div>
           </ion-label>
         </ion-item>
       </ion-list>
+
+      <!-- Formato en tabla -->
+      <ion-grid *ngIf="isTableFormat">
+        <ion-row>
+          <ion-col size="3"><strong>Día</strong></ion-col>
+          <ion-col size="3"><strong>Asignatura</strong></ion-col>
+          <ion-col size="2"><strong>Hora</strong></ion-col>
+          <ion-col size="2"><strong>Sala</strong></ion-col>
+          <ion-col size="2"><strong>Sección</strong></ion-col>
+        </ion-row>
+        
+        <ion-row *ngFor="let day of filteredSchedule">
+          <ion-col size="3">{{ day.day | titlecase }}</ion-col>
+          <ion-col size="3">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.subject }}</p>
+            </div>
+          </ion-col>
+          <ion-col size="2">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.time }}</p>
+            </div>
+          </ion-col>
+          <ion-col size="2">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.sala }}</p>
+            </div>
+          </ion-col>
+          <ion-col size="2">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.section }}</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
     </div>
   </ion-content>
 

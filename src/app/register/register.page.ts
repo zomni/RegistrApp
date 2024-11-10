@@ -26,6 +26,25 @@ export class RegisterPage {
     "Ética Profesional", "Habilidades Blandas", "Diseño Gráfico"
   ];
 
+  // Opciones de salas
+  salas: string[] = [
+    "101", "102", "103", "104", "105", "106", "107", "108", "201", "202", 
+    "203", "204", "205", "206", "207", "208", "301", "302", "303", "304", 
+    "305", "306", "307", "308", "401", "402", "403", "404", "405", "406", 
+    "407", "408", "501", "502", "503", "504", "505", "506", "507", "508", 
+    "601", "602", "603", "604", "605", "606", "607", "608", "701", "702", 
+    "703", "704", "705", "706", "707", "708", "801", "802", "803", "804", 
+    "805", "806", "807", "808"
+  ];
+
+  // Función para generar una sección aleatoria
+  generateRandomSection(): string {
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+    const randomNumbers = Math.floor(100 + Math.random() * 900); // Generar tres números aleatorios
+    return `${randomLetter}${randomNumbers}`;
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -60,10 +79,17 @@ export class RegisterPage {
       while (schedule[day].length < 3) {
         const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
         const randomTime = weekdayTimes[Math.floor(Math.random() * weekdayTimes.length)];
+        const randomSala = this.salas[Math.floor(Math.random() * this.salas.length)];
+        const randomSection = this.generateRandomSection();
 
         if (!usedTimes.has(randomTime)) {
           usedTimes.add(randomTime);
-          schedule[day].push({ subject: randomSubject, time: randomTime });
+          schedule[day].push({ 
+            subject: randomSubject, 
+            time: randomTime, 
+            sala: randomSala, 
+            section: randomSection 
+          });
         }
       }
     });
@@ -76,10 +102,17 @@ export class RegisterPage {
       while (schedule[day].length < 5) {
         const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
         const randomTime = saturdayTimes[Math.floor(Math.random() * saturdayTimes.length)];
+        const randomSala = this.salas[Math.floor(Math.random() * this.salas.length)];
+        const randomSection = this.generateRandomSection();
 
         if (!usedTimes.has(randomTime)) {
           usedTimes.add(randomTime);
-          schedule[day].push({ subject: randomSubject, time: randomTime });
+          schedule[day].push({ 
+            subject: randomSubject, 
+            time: randomTime, 
+            sala: randomSala, 
+            section: randomSection 
+          });
         }
       }
     });
