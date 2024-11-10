@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController } from '@ionic/angular';
+import { MenuController, LoadingController, AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { WeatherService } from '../services/weather.service';
 import { DateService } from '../services/date.service';
@@ -27,37 +27,50 @@ export class HubAlumnoPage implements OnInit {
     private authService: AuthService,
     private weatherService: WeatherService,
     private dateService: DateService,
-    private userService: UserService
+    private userService: UserService,
+    private loadingController: LoadingController,
+    private alertController: AlertController // Inyectar AlertController
   ) {
     this.currentDate = this.dateService.getCurrentDate();
   }
 
   async ngOnInit() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (isLoggedIn) {
-      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-      const userId = userData?.uid;
+    // Mostrar el indicador de carga
+    const loading = await this.loadingController.create({
+      message: 'Cargando datos...',
+    });
+    await loading.present();
 
-      if (userId) {
-        // Obtener usuario desde Firestore utilizando el servicio UserService
-        const user = await this.userService.getUser(userId);
-        
-        // Si el usuario existe, actualizar nombre y horario
-        if (user) {
-          this.userName = user.name || 'Usuario';
-          this.userSchedule = this.convertScheduleToArray(user.schedule || {});
-          this.sortSchedule();
-          this.filteredSchedule = [...this.userSchedule]; // Inicializa el array filtrado
+    try {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      if (isLoggedIn) {
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        const userId = userData?.uid;
+
+        if (userId) {
+          // Obtener usuario desde Firestore utilizando el servicio UserService
+          const user = await this.userService.getUser(userId);
+
+          // Si el usuario existe, actualizar nombre y horario
+          if (user) {
+            this.userName = user.name || 'Usuario';
+            this.userSchedule = this.convertScheduleToArray(user.schedule || {});
+            this.sortSchedule();
+            this.filteredSchedule = [...this.userSchedule]; // Inicializa el array filtrado
+          }
+        } else {
+          this.router.navigate(['/login']);
         }
       } else {
         this.router.navigate(['/login']);
       }
-    } else {
-      this.router.navigate(['/login']);
-    }
 
-    this.checkDarkMode();
-    this.weather = await this.weatherService.getWeather(-33.5, -70.6); // Santiago, Chile
+      this.checkDarkMode();
+      this.weather = await this.weatherService.getWeather(-33.5, -70.6); // Santiago, Chile
+    } finally {
+      // Ocultar el indicador de carga
+      await loading.dismiss();
+    }
   }
 
   // Convierte el objeto de horario en un array para evitar errores en la vista con *ngFor
@@ -110,12 +123,31 @@ export class HubAlumnoPage implements OnInit {
     } else {
       console.log('Este navegador no soporta notificaciones.');
     }
-  }
+  } 
 
   async logout() {
-    await this.menuController.close();
-    await this.authService.logout();
-    localStorage.clear();
-    this.router.navigate(['/login']);
+    // Mostrar el mensaje de confirmación
+    const alert = await this.alertController.create({
+      header: 'Cerrar Sesión',
+      message: '¿Estás seguro de que deseas cerrar sesión?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          handler: async () => {
+            await this.menuController.close();
+            await this.authService.logout();
+            localStorage.clear();
+            this.router.navigate(['/login']);
+          },
+        },
+      ],
+    });
+
+    // Mostrar el mensaje de alerta
+    await alert.present();
   }
 }
