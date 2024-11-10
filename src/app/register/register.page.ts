@@ -93,7 +93,8 @@ export class RegisterPage {
             time: randomTime, 
             sala: randomSala, 
             section: randomSection, 
-            code: subjectCode
+            code: subjectCode,
+            attendance: '' // Atributo de asistencia vacío
           });
         }
       }
@@ -117,7 +118,8 @@ export class RegisterPage {
             time: randomTime, 
             sala: randomSala, 
             section: randomSection, 
-            code: subjectCode
+            code: subjectCode,
+            attendance: '' // Atributo de asistencia vacío
           });
         }
       }
