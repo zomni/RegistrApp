@@ -3,14 +3,25 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/"></ion-back-button>
     </ion-buttons>
-    <ion-title>Escanee su codigo QR</ion-title>
+    <ion-title>Escanee su código QR</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div id="qr-reader" style="width:100%"></div>
-  <div id="qr-reader-results"></div>
+  <!-- Estado del escaneo -->
+  <div *ngIf="isScanning" class="ion-padding">
+    <p>Escaneando...</p>
+    <div id="qr-reader" style="width:100%; height: 300px;"></div>
+  </div>
 
-  <h3><ion-button expand="full" (click)="irinicio()">Inicio</ion-button></h3>
+  <!-- Resultados del escaneo -->
+  <div *ngIf="barcodes.length > 0" class="ion-padding">
+    <h4>Código escaneado:</h4>
+    <p>{{ barcodes[0].displayValue }}</p>
+    <ion-button expand="full" color="success" (click)="irinicio()">Ir al inicio</ion-button>
+  </div>
 
+  <div *ngIf="!barcodes.length && !isScanning" class="ion-padding">
+    <p>Esperando por un código QR...</p>
+  </div>
 </ion-content>
