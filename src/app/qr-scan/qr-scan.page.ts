@@ -1,7 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Html5Qrcode } from 'html5-qrcode';
 import { AlertController } from '@ionic/angular';
+import {
+  BarcodeScanner,
+  BarcodeFormat,
+  ScanOptions,
+} from '@capacitor-mlkit/barcode-scanning';
 
 @Component({
   selector: 'app-qr-scan',
@@ -9,44 +13,36 @@ import { AlertController } from '@ionic/angular';
   styleUrls: ['./qr-scan.page.scss'],
 })
 export class QrScanPage implements OnInit, OnDestroy {
-  private html5QrCode!: Html5Qrcode;
-  private isScanning: boolean = true;
+  public barcodes: any[] = [];
+  public isScanning: boolean = false;
+
   constructor(private router: Router, private alertController: AlertController) {}
 
   ngOnInit() {
-    this.html5QrCode = new Html5Qrcode("qr-reader");
-
-    this.html5QrCode.start(
-      { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 }
-      },
-      async qrCodeMessage => {
-        if (this.isScanning) {
-          this.isScanning = false;
-          this.html5QrCode.stop().then(() => {
-            console.log("Escaneo detenido");
-          }).catch(err => {
-            console.error("Error al detener el escáner", err);
-          });
-
-          await this.showSuccessMessage();
-        }
-      },
-      errorMessage => {
-        console.warn(`Error al escanear: ${errorMessage}`);
-      }
-    ).catch(err => {
-      console.error(`Error al iniciar el escáner: ${err}`);
-    });
+    this.startScan(); // Inicia el escaneo automáticamente
   }
 
-  ngOnDestroy() {    if (this.html5QrCode && this.isScanning) {
-      this.html5QrCode.stop().catch(err => {
-        console.error(`Error al detener el escáner: ${err}`);
-      });
+  async startScan() {
+    this.isScanning = true;
+    const options: ScanOptions = {
+      formats: [BarcodeFormat.QrCode],
+    };
+
+    try {
+      const result = await BarcodeScanner.scan(options);
+      this.barcodes = result.barcodes;
+      this.isScanning = false;
+      if (this.barcodes.length > 0) {
+        await this.showSuccessMessage();
+      }
+    } catch (error) {
+      console.error('Error al escanear: ', error);
+      this.isScanning = false;
     }
+  }
+
+  ngOnDestroy() {
+    this.isScanning = false;
   }
 
   irinicio() {
@@ -57,13 +53,12 @@ export class QrScanPage implements OnInit, OnDestroy {
     const alert = await this.alertController.create({
       header: '¡Éxito!',
       message: '¡Asistencia registrada con éxito!',
-      buttons: ['OK']
+      buttons: ['OK'],
     });
 
     await alert.present();
 
     await alert.onDidDismiss();
-
     this.router.navigate(['/hub-alumno']);
   }
 }
