@@ -101,3 +101,12 @@ ion-label {
     color: var(--ion-color-dark);
   }
   
+  .location-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .location-container ion-button {
+    margin-left: 8px;
+  }
+  
