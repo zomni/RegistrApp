@@ -6,32 +6,28 @@
   </ion-header>
   <ion-content class="ion-padding">
     <ion-list>
+      <!-- Opciones del menú -->
       <ion-item button routerLink="/profile">
         <ion-icon name="person-outline" slot="start"></ion-icon>
         <ion-label>Perfil</ion-label>
       </ion-item>
-
       <ion-item button (click)="toggleDarkMode()">
         <ion-icon name="moon-outline" slot="start"></ion-icon>
         <ion-label>Modo Oscuro</ion-label>
       </ion-item>
-
       <ion-item button routerLink="/bookmark">
         <ion-icon name="bookmark-outline" slot="start"></ion-icon>
         <ion-label>Asistencia</ion-label>
       </ion-item>
-
-      <ion-item button (click)="requestNotificationPermission()">
+      <ion-item>
         <ion-icon name="notifications-outline" slot="start"></ion-icon>
         <ion-label>Notificaciones</ion-label>
+        <ion-toggle [(ngModel)]="notificationsEnabled" (ionChange)="toggleNotifications()"></ion-toggle>
       </ion-item>
-
       <ion-item button (click)="logout()">
         <ion-icon name="log-out-outline" slot="start"></ion-icon>
         <ion-label>Cerrar Sesión</ion-label>
       </ion-item>
-      <!-- Fin de botones agregados -->
-      
     </ion-list>
   </ion-content>
 </ion-menu>
@@ -50,42 +46,89 @@
     <div class="date-container">
       <h2>{{ currentDate }}</h2>
       <h3>{{ weather }}</h3>
+      <div class="location-container">
+        <h4>{{ locationMessage }}</h4>
+        <ion-button fill="clear" size="small" (click)="checkLocationProximity()">
+          <ion-icon name="location-outline"></ion-icon>
+        </ion-button>
+      </div>
     </div>
 
     <div class="schedule-container">
       <h2>Horario de Clases</h2>
-      
-      <!-- Buscador -->
-      <ion-searchbar 
-        [(ngModel)]="searchTerm" 
-        (ionInput)="filterSchedule($event)" 
-        placeholder="Buscar por día o asignatura">
-      </ion-searchbar>
-      
-      <ion-list>
+      <ion-button (click)="toggleScheduleFormat()">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </ion-button>
+      <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="filterSchedule($event)" placeholder="Buscar por día o asignatura"></ion-searchbar>
+
+      <!-- Formato en lista -->
+      <ion-list *ngIf="!isTableFormat">
         <ion-item *ngFor="let day of filteredSchedule" class="day-item">
           <ion-label>
             <h3 class="day-title">{{ day.day | titlecase }}</h3>
             <div *ngFor="let subject of day.subjects" class="subject-item">
               <p class="subject-name">Asignatura: {{ subject.subject }}</p>
+              <p class="subject-code">Siglas: {{ subject.code }}</p> <!-- Nuevo campo de siglas -->
               <p class="subject-time">Hora: {{ subject.time }}</p>
+              <p class="subject-room">Sala: {{ subject.sala }}</p>
+              <p class="subject-section">Sección: {{ subject.section }}</p>
             </div>
           </ion-label>
         </ion-item>
       </ion-list>
+
+      <!-- Formato en tabla -->
+      <ion-grid *ngIf="isTableFormat">
+        <ion-row>
+          <ion-col size="3"><strong>Día</strong></ion-col>
+          <ion-col size="2"><strong>Asignatura</strong></ion-col>
+          <ion-col size="2"><strong>Siglas</strong></ion-col> <!-- Columna de siglas -->
+          <ion-col size="2"><strong>Hora</strong></ion-col>
+          <ion-col size="1"><strong>Sala</strong></ion-col>
+          <ion-col size="2"><strong>Sección</strong></ion-col>
+        </ion-row>
+        
+        <ion-row *ngFor="let day of filteredSchedule">
+          <ion-col size="3">{{ day.day | titlecase }}</ion-col>
+          <ion-col size="2">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.subject }}</p>
+            </div>
+          </ion-col>
+          <ion-col size="2">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.code }}</p> <!-- Campo de siglas en formato tabla -->
+            </div>
+          </ion-col>
+          <ion-col size="2">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.time }}</p>
+            </div>
+          </ion-col>
+          <ion-col size="1">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.sala }}</p>
+            </div>
+          </ion-col>
+          <ion-col size="2">
+            <div *ngFor="let subject of day.subjects">
+              <p>{{ subject.section }}</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
   </ion-content>
 
   <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-    <ion-fab-button routerLink="/qr-scan"> 
+    <ion-fab-button routerLink="/qr-scan">
       <ion-icon name="qr-code-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
   <ion-footer>
     <ion-toolbar>
-      <div class="custom-tab-bar">
-      </div>
+      <div class="custom-tab-bar"></div>
     </ion-toolbar>
   </ion-footer>
 </div>

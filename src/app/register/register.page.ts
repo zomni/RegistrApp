@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component } from '@angular/core'; 
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
@@ -26,6 +26,29 @@ export class RegisterPage {
     "Ética Profesional", "Habilidades Blandas", "Diseño Gráfico"
   ];
 
+  salas: string[] = [
+    "101", "102", "103", "104", "105", "106", "107", "108", "201", "202", 
+    "203", "204", "205", "206", "207", "208", "301", "302", "303", "304", 
+    "305", "306", "307", "308", "401", "402", "403", "404", "405", "406", 
+    "407", "408", "501", "502", "503", "504", "505", "506", "507", "508", 
+    "601", "602", "603", "604", "605", "606", "607", "608", "701", "702", 
+    "703", "704", "705", "706", "707", "708", "801", "802", "803", "804", 
+    "805", "806", "807", "808", "L1", "L2", "L3", "L4", "L5", "L6", "L7",
+    "L8"
+  ];
+
+  generateRandomSection(): string {
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+    const randomNumbers = Math.floor(100 + Math.random() * 900); 
+    return `${randomNumbers}${randomLetter}`;
+  }
+
+  generateSubjectCode(): string {
+    const randomNumber = Math.floor(1000 + Math.random() * 9000); 
+    return `PGY${randomNumber}`;
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -52,34 +75,52 @@ export class RegisterPage {
       '16:00', '17:00'
     ];
 
-    // Generar horario para días de semana (3 asignaturas máximo)
     weekdays.forEach(day => {
       schedule[day] = [];
-      const usedTimes = new Set<string>(); // Para verificar tiempos ya usados
+      const usedTimes = new Set<string>();
 
       while (schedule[day].length < 3) {
         const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
         const randomTime = weekdayTimes[Math.floor(Math.random() * weekdayTimes.length)];
+        const randomSala = this.salas[Math.floor(Math.random() * this.salas.length)];
+        const randomSection = this.generateRandomSection();
+        const subjectCode = this.generateSubjectCode();
 
         if (!usedTimes.has(randomTime)) {
           usedTimes.add(randomTime);
-          schedule[day].push({ subject: randomSubject, time: randomTime });
+          schedule[day].push({ 
+            subject: randomSubject, 
+            time: randomTime, 
+            sala: randomSala, 
+            section: randomSection, 
+            code: subjectCode,
+            attendance: '' // Atributo de asistencia vacío
+          });
         }
       }
     });
 
-    // Generar horario para sábado (5 asignaturas máximo)
     saturday.forEach(day => {
       schedule[day] = [];
-      const usedTimes = new Set<string>(); // Para verificar tiempos ya usados
+      const usedTimes = new Set<string>();
 
       while (schedule[day].length < 5) {
         const randomSubject = this.subjects[Math.floor(Math.random() * this.subjects.length)];
         const randomTime = saturdayTimes[Math.floor(Math.random() * saturdayTimes.length)];
+        const randomSala = this.salas[Math.floor(Math.random() * this.salas.length)];
+        const randomSection = this.generateRandomSection();
+        const subjectCode = this.generateSubjectCode();
 
         if (!usedTimes.has(randomTime)) {
           usedTimes.add(randomTime);
-          schedule[day].push({ subject: randomSubject, time: randomTime });
+          schedule[day].push({ 
+            subject: randomSubject, 
+            time: randomTime, 
+            sala: randomSala, 
+            section: randomSection, 
+            code: subjectCode,
+            attendance: '' // Atributo de asistencia vacío
+          });
         }
       }
     });
@@ -101,9 +142,8 @@ export class RegisterPage {
       const schedule = this.generateRandomSchedule();
       await this.authService.saveUserSchedule(user.uid, schedule);
       
-      // Redirigir a la página de login
       this.router.navigate(['/login']).then(() => {
-        window.location.reload(); // Fuerza la recarga de la página
+        window.location.reload();
       });
     } catch (error) {
       await this.showAlert('Error', (error as Error).message);
