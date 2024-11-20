@@ -22,6 +22,7 @@
       <ion-item>
         <ion-icon name="notifications-outline" slot="start"></ion-icon>
         <ion-label>Notificaciones</ion-label>
+        <ion-label> </ion-label>
         <ion-toggle [(ngModel)]="notificationsEnabled" (ionChange)="toggleNotifications()"></ion-toggle>
       </ion-item>
       <ion-item button (click)="logout()">
@@ -47,7 +48,19 @@
       <h2>{{ currentDate }}</h2>
       <h3>{{ weather }}</h3>
       <div class="location-container">
-        <h4>{{ locationMessage }}</h4>
+        <h4>
+          {{ locationMessage }}
+          <ion-icon
+            *ngIf="isInsideCampus === true"
+            name="checkmark-circle-outline"
+            color="success"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="isInsideCampus === false"
+            name="close-circle-outline"
+            color="danger"
+          ></ion-icon>
+        </h4>        
         <ion-button fill="clear" size="small" (click)="checkLocationProximity()">
           <ion-icon name="location-outline"></ion-icon>
         </ion-button>

@@ -5,7 +5,7 @@ import { AuthService } from '../services/auth.service';
 import { WeatherService } from '../services/weather.service';
 import { DateService } from '../services/date.service';
 import { UserService } from '../services/user.service';
-import { Geolocation } from '@capacitor/geolocation';
+import { LocationService } from '../services/location.service'; // Usar LocationService
 import { PushNotifications } from '@capacitor/push-notifications';
 
 @Component({
@@ -17,28 +17,21 @@ export class HubAlumnoPage implements OnInit {
   currentDate: string;
   weather: string = 'Cargando...';
   locationMessage: string = ''; // Mensaje de ubicación
+  isInsideCampus: boolean | null = null; // Estado de si está dentro del campus
   isDarkMode: boolean = false;
   userName: string = '';
   userSchedule: any[] = []; // Array para el horario
   filteredSchedule: any[] = []; // Array para el horario filtrado
   searchTerm: string = ''; // Término de búsqueda
   daysOfWeek: string[] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  
-  // Coordenadas de destino y radio en metros //-33.50004965556381 , -70.6165080277463 duoc
-  // -33.62398953109721, -70.70978787693707
-  targetLatitude: number = -33.62398953109721;
-  targetLongitude: number = -70.70978787693707;
+
+  // Coordenadas del campus y radio en metros
+  targetLatitude: number = -33.4994505196263;
+  targetLongitude: number = -70.66439127315599;
   radius: number = 100;
 
   notificationsEnabled: boolean = false; // Estado del toggle de notificaciones
-
-  // Variable para alternar el formato
-  isTableFormat: boolean = false;
-
-  // Función para alternar entre el formato en tabla o en lista
-  toggleScheduleFormat() {
-    this.isTableFormat = !this.isTableFormat;
-  }
+  isTableFormat: boolean = false; // Estado para alternar entre tabla y lista
 
   constructor(
     private router: Router,
@@ -47,6 +40,7 @@ export class HubAlumnoPage implements OnInit {
     private weatherService: WeatherService,
     private dateService: DateService,
     private userService: UserService,
+    private locationService: LocationService, // Usar LocationService
     private loadingController: LoadingController,
     private alertController: AlertController
   ) {
@@ -82,16 +76,81 @@ export class HubAlumnoPage implements OnInit {
 
       this.checkDarkMode();
       this.weather = await this.weatherService.getWeather(-33.5, -70.6);
-      await this.checkLocationProximity(); // Verificar proximidad a la ubicación
 
-      // Cargar el estado de las notificaciones desde localStorage
-      const notificationsStatus = localStorage.getItem('notificationsEnabled');
-      if (notificationsStatus !== null) {
-        this.notificationsEnabled = JSON.parse(notificationsStatus);
-      }
+      // Actualizar mensaje de ubicación pero sin mostrar alerta
+      await this.updateLocationMessage();
     } finally {
       await loading.dismiss();
     }
+  }
+
+  async updateLocationMessage() {
+    const hasPermission = await this.locationService.requestPermissions();
+    if (!hasPermission) {
+      this.locationMessage = 'Permiso de ubicación denegado.';
+      this.isInsideCampus = null;
+      return;
+    }
+
+    const position = await this.locationService.getCurrentPosition();
+    if (position) {
+      this.isInsideCampus = this.locationService.isWithinRadius(
+        position.latitude,
+        position.longitude,
+        this.targetLatitude,
+        this.targetLongitude,
+        this.radius
+      );
+
+      this.locationMessage = this.isInsideCampus
+        ? 'Estás dentro del campus.'
+        : 'Estás fuera del campus.';
+    } else {
+      this.locationMessage = 'No se pudo obtener la ubicación.';
+      this.isInsideCampus = null;
+    }
+  }
+
+  async checkLocationProximity() {
+    const loading = await this.loadingController.create({
+      message: 'Verificando ubicación...',
+    });
+    await loading.present();
+
+    try {
+      const hasPermission = await this.locationService.requestPermissions();
+      if (!hasPermission) {
+        await this.showAlert('Permiso de ubicación denegado.');
+        return;
+      }
+
+      const position = await this.locationService.getCurrentPosition();
+      if (position) {
+        const isInside = this.locationService.isWithinRadius(
+          position.latitude,
+          position.longitude,
+          this.targetLatitude,
+          this.targetLongitude,
+          this.radius
+        );
+
+        const alertMessage = isInside
+          ? 'Estás dentro del campus.'
+          : 'Estás fuera del campus.';
+        await this.showAlert(alertMessage);
+      } else {
+        await this.showAlert('No se pudo obtener la ubicación.');
+      }
+    } catch (error) {
+      console.error('Error obteniendo la ubicación:', error);
+      await this.showAlert('No se pudo obtener la ubicación.');
+    } finally {
+      await loading.dismiss();
+    }
+  }
+
+  toggleScheduleFormat() {
+    this.isTableFormat = !this.isTableFormat;
   }
 
   convertScheduleToArray(schedule: any): any[] {
@@ -111,7 +170,7 @@ export class HubAlumnoPage implements OnInit {
     const searchTerm = this.searchTerm.toLowerCase();
     this.filteredSchedule = this.userSchedule.filter(day => {
       return (
-        day.day.toLowerCase().includes(searchTerm) || 
+        day.day.toLowerCase().includes(searchTerm) ||
         day.subjects.some((subject: any) => subject.subject.toLowerCase().includes(searchTerm))
       );
     });
@@ -179,53 +238,6 @@ export class HubAlumnoPage implements OnInit {
       ],
     });
     await alert.present();
-  }
-
-  // Verifica la proximidad del usuario a las coordenadas objetivo
-  async checkLocationProximity() {
-    const loading = await this.loadingController.create({
-      message: 'Verificando ubicación...',
-      duration: 1000 // Duración mínima de 3 segundos
-    });
-    await loading.present();
-
-    try {
-      const permission = await Geolocation.requestPermissions();
-      if (permission.location === 'granted') {
-        const position = await Geolocation.getCurrentPosition();
-        const userLatitude = position.coords.latitude;
-        const userLongitude = position.coords.longitude;
-
-        if (this.isWithinRadius(userLatitude, userLongitude, this.targetLatitude, this.targetLongitude, this.radius)) {
-          this.locationMessage = 'Estás dentro del campus.';
-        } else {
-          this.locationMessage = 'Estás fuera del campus.';
-        }
-      } else {
-        this.locationMessage = 'Permiso de ubicación denegado.';
-      }
-    } catch (error) {
-      console.error('Error obteniendo la ubicación:', error);
-      this.locationMessage = 'No se pudo obtener la ubicación.';
-    } finally {
-      setTimeout(() => loading.dismiss(), 500);
-    }
-  }
-
-  isWithinRadius(userLat: number, userLon: number, targetLat: number, targetLon: number, radius: number): boolean {
-    const R = 6371e3; 
-    const φ1 = (userLat * Math.PI) / 180;
-    const φ2 = (targetLat * Math.PI) / 180;
-    const Δφ = ((targetLat - userLat) * Math.PI) / 180;
-    const Δλ = ((targetLon - userLon) * Math.PI) / 180;
-
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = R * c;
-    return distance <= radius;
   }
 
   async showAlert(message: string) {

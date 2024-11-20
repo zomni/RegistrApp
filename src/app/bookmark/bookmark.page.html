@@ -9,16 +9,29 @@
   </ion-header>
 
   <ion-content class="ion-padding">
-    <h2 class="current-date"><ion-icon name="calendar-outline"></ion-icon> Día Actual: {{ currentDate | date: 'EEEE d \'de\' MMMM' | titlecase }}</h2>
+    <h2 class="current-date">
+      <ion-icon name="calendar-outline"></ion-icon>
+      Día Actual: {{ currentDate | date: 'EEEE d \'de\' MMMM' | titlecase }}
+    </h2>
 
     <ion-list>
       <ion-item *ngFor="let attendance of attendanceList">
         <ion-card class="attendance-card">
           <ion-card-header>
-            <ion-card-title>{{ attendance.day | titlecase }}</ion-card-title>
+            <ion-card-title>{{ attendance.formattedDate }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <p class="attendance-status"><ion-icon name="checkmark-done-circle-outline"></ion-icon>{{ attendance.status }}</p>
+            <p><strong>Asignatura:</strong> {{ attendance.subject }}</p>
+            <p><strong>Sección:</strong> {{ attendance.section }}</p>
+            <p>
+              <strong>Estado:</strong> 
+              <ion-icon 
+                *ngIf="attendance.status === 'Presente'" 
+                name="checkmark-done-circle-outline" 
+                color="success">
+              </ion-icon>
+              {{ attendance.status }}
+            </p>
           </ion-card-content>
         </ion-card>
       </ion-item>
@@ -27,7 +40,7 @@
 
   <ion-footer>
     <ion-toolbar>
-      <p class="footer-text"></p>
+      <p class="footer-text">Consulta tus registros de asistencia.</p>
     </ion-toolbar>
   </ion-footer>
 </div>
