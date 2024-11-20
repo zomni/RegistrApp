@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore'; // Cambiado a compat
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../models/user.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   constructor(private firestore: AngularFirestore) {}
@@ -22,7 +22,8 @@ export class UserService {
         data['lastName'],
         data['phoneNumber'],
         data['address'],
-        data['schedule'] || []
+        data['schedule'] || [],
+        data['attendance'] || [] // Aseguramos que obtenga el campo 'attendance' si existe
       );
     }
     return null;
@@ -36,9 +37,10 @@ export class UserService {
     lastName: string,
     phoneNumber: string,
     address: string,
-    schedule: any[] = []
+    schedule: any[] = [],
+    attendance: { date: string; subject: string; section: string; status: string }[] = []
   ): Promise<void> {
-    const user = new User(uid, email, name, lastName, phoneNumber, address, schedule);
+    const user = new User(uid, email, name, lastName, phoneNumber, address, schedule, attendance);
     const userRef = this.firestore.doc(`users/${uid}`);
     await userRef.set(Object.assign({}, user));
   }
@@ -46,7 +48,36 @@ export class UserService {
   // Actualizar un usuario
   async updateUser(uid: string, updatedData: Partial<User>): Promise<void> {
     const userRef = this.firestore.doc(`users/${uid}`);
-    await userRef.update(updatedData);
+    const currentData = (await userRef.get().toPromise())?.data() as Partial<User>;
+
+    if (currentData) {
+      // Filtra los registros existentes para evitar duplicados
+      const existingAttendance = currentData.attendance || [];
+      const newAttendance = (updatedData.attendance || []).filter(
+        (newRecord) =>
+          !existingAttendance.some(
+            (existingRecord) =>
+              existingRecord.date === newRecord.date &&
+              existingRecord.subject === newRecord.subject &&
+              existingRecord.section === newRecord.section
+          )
+      );
+
+      // Combina los registros sin duplicar
+      const updatedAttendance = [...existingAttendance, ...newAttendance];
+
+      // Combina todos los datos actualizados
+      const newData: Partial<User> = {
+        ...currentData,
+        ...updatedData,
+        attendance: updatedAttendance,
+      };
+
+      await userRef.update(newData);
+    } else {
+      // Si no existe el usuario, crea el documento directamente
+      await userRef.set(updatedData);
+    }
   }
 
   // Eliminar un usuario
@@ -62,15 +93,18 @@ export class UserService {
 
     userSnapshot?.forEach(doc => {
       const data = doc.data();
-      users.push(new User(
-        data.uid,
-        data.email,
-        data.name,
-        data.lastName,
-        data.phoneNumber,
-        data.address,
-        data.schedule || []
-      ));
+      users.push(
+        new User(
+          data.uid,
+          data.email,
+          data.name,
+          data.lastName,
+          data.phoneNumber,
+          data.address,
+          data.schedule || [],
+          data.attendance || [] // Incluimos 'attendance' en los datos obtenidos
+        )
+      );
     });
 
     return users;

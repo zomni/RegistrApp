@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DateService } from '../services/date.service';
+import { UserService } from '../services/user.service';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-bookmark',
@@ -7,41 +9,67 @@ import { DateService } from '../services/date.service';
   styleUrls: ['./bookmark.page.scss'],
 })
 export class BookmarkPage implements OnInit {
-  attendanceList: { day: string; status: string }[] = [];
+  attendanceList: { 
+    formattedDate: string; 
+    subject: string; 
+    section: string; 
+    status: string; 
+  }[] = []; // Ajuste para incluir toda la información necesaria
   currentDate: Date = new Date();
 
-  constructor(private dateService: DateService) {}
+  constructor(
+    private userService: UserService,
+    private afAuth: AngularFireAuth,
+    private loadingController: LoadingController // Inyección del LoadingController
+  ) {}
 
   ngOnInit() {
     this.loadAttendance();
   }
 
-  loadAttendance() {
-    const currentDayIndex = this.currentDate.getDay(); // Obtiene el índice del día actual (0-6)
-    const currentDay = this.currentDate.getDate(); // Día del mes
-    const currentMonth = this.currentDate.getMonth(); // Mes actual (0-11)
-    const currentYear = this.currentDate.getFullYear(); // Año actual
+  async loadAttendance() {
+    const loading = await this.loadingController.create({
+      message: 'Cargando asistencia...',
+    });
+    await loading.present();
 
-    // Calcula la fecha de inicio de la semana (domingo)
-    const firstDayOfWeek = new Date(this.currentDate);
-    firstDayOfWeek.setDate(currentDay - currentDayIndex); // Ajusta al domingo
+    try {
+      const userId = (await this.afAuth.currentUser)?.uid;
+      if (!userId) {
+        console.error('No se pudo obtener el UID del usuario.');
+        return;
+      }
 
-    // Recorre todos los días de la semana
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(firstDayOfWeek);
-      date.setDate(firstDayOfWeek.getDate() + i); // Incrementa el día
+      const user = await this.userService.getUser(userId);
+      if (user && user.attendance) {
+        this.attendanceList = user.attendance.map(record => {
+          // Crear el objeto Date sin afectar la zona horaria
+          const [day, month, year] = record.date.split('-').map(Number);
+          const localDate = new Date(year, month - 1, day); // Mes ajustado (0-11)
 
-      const dayName = date.toLocaleDateString('es-ES', { weekday: 'long' });
-      const formattedDate = date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'long'
-      });
+          // Formatear la fecha de forma segura en local
+          const formattedDate = localDate.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          });
 
-      // Marca como "Asistido" solo los días desde el inicio de la semana hasta el día actual
-      const status = i <= currentDayIndex ? 'Presente' : ' ';
+          // Retornamos la estructura completa para el HTML
+          return {
+            formattedDate, // Fecha formateada para mostrar
+            subject: record.subject,
+            section: record.section,
+            status: record.status,
+          };
+        });
 
-      this.attendanceList.push({ day: `${dayName} ${formattedDate}`, status });
+        console.log('Lista de asistencia cargada:', this.attendanceList);
+      }
+    } catch (error) {
+      console.error('Error al cargar la asistencia:', error);
+    } finally {
+      await loading.dismiss(); // Asegura que el loading se detiene siempre
     }
-}
-
+  }
 }
