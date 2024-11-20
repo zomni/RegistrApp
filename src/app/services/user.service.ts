@@ -48,21 +48,34 @@ export class UserService {
   // Actualizar un usuario
   async updateUser(uid: string, updatedData: Partial<User>): Promise<void> {
     const userRef = this.firestore.doc(`users/${uid}`);
-    const currentData = (await userRef.get().toPromise())?.data() as Partial<User>; // Usamos Partial<User> para evitar errores si faltan campos
+    const currentData = (await userRef.get().toPromise())?.data() as Partial<User>;
 
     if (currentData) {
-      // Combina los datos actuales con los nuevos
+      // Filtra los registros existentes para evitar duplicados
+      const existingAttendance = currentData.attendance || [];
+      const newAttendance = (updatedData.attendance || []).filter(
+        (newRecord) =>
+          !existingAttendance.some(
+            (existingRecord) =>
+              existingRecord.date === newRecord.date &&
+              existingRecord.subject === newRecord.subject &&
+              existingRecord.section === newRecord.section
+          )
+      );
+
+      // Combina los registros sin duplicar
+      const updatedAttendance = [...existingAttendance, ...newAttendance];
+
+      // Combina todos los datos actualizados
       const newData: Partial<User> = {
         ...currentData,
         ...updatedData,
-        attendance: [
-          ...(currentData.attendance || []), // Mantiene los registros existentes
-          ...(updatedData.attendance || []), // Agrega los nuevos registros
-        ],
+        attendance: updatedAttendance,
       };
+
       await userRef.update(newData);
     } else {
-      // Si no existe el usuario, creamos el documento
+      // Si no existe el usuario, crea el documento directamente
       await userRef.set(updatedData);
     }
   }

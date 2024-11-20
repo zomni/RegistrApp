@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../services/user.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-bookmark',
@@ -18,7 +19,8 @@ export class BookmarkPage implements OnInit {
 
   constructor(
     private userService: UserService,
-    private afAuth: AngularFireAuth
+    private afAuth: AngularFireAuth,
+    private loadingController: LoadingController // Inyección del LoadingController
   ) {}
 
   ngOnInit() {
@@ -26,37 +28,48 @@ export class BookmarkPage implements OnInit {
   }
 
   async loadAttendance() {
-    const userId = (await this.afAuth.currentUser)?.uid;
-    if (!userId) {
-      console.error('No se pudo obtener el UID del usuario.');
-      return;
-    }
+    const loading = await this.loadingController.create({
+      message: 'Cargando asistencia...',
+    });
+    await loading.present();
 
-    const user = await this.userService.getUser(userId);
-    if (user && user.attendance) {
-      this.attendanceList = user.attendance.map(record => {
-        // Crear el objeto Date sin afectar la zona horaria
-        const [day, month, year] = record.date.split('-').map(Number);
-        const localDate = new Date(year, month - 1, day); // Mes ajustado (0-11)
+    try {
+      const userId = (await this.afAuth.currentUser)?.uid;
+      if (!userId) {
+        console.error('No se pudo obtener el UID del usuario.');
+        return;
+      }
 
-        // Formatear la fecha de forma segura en local
-        const formattedDate = localDate.toLocaleDateString('es-ES', {
-          weekday: 'long',
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
+      const user = await this.userService.getUser(userId);
+      if (user && user.attendance) {
+        this.attendanceList = user.attendance.map(record => {
+          // Crear el objeto Date sin afectar la zona horaria
+          const [day, month, year] = record.date.split('-').map(Number);
+          const localDate = new Date(year, month - 1, day); // Mes ajustado (0-11)
+
+          // Formatear la fecha de forma segura en local
+          const formattedDate = localDate.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          });
+
+          // Retornamos la estructura completa para el HTML
+          return {
+            formattedDate, // Fecha formateada para mostrar
+            subject: record.subject,
+            section: record.section,
+            status: record.status,
+          };
         });
 
-        // Retornamos la estructura completa para el HTML
-        return {
-          formattedDate, // Fecha formateada para mostrar
-          subject: record.subject,
-          section: record.section,
-          status: record.status,
-        };
-      });
-
-      console.log('Lista de asistencia cargada:', this.attendanceList);
+        console.log('Lista de asistencia cargada:', this.attendanceList);
+      }
+    } catch (error) {
+      console.error('Error al cargar la asistencia:', error);
+    } finally {
+      await loading.dismiss(); // Asegura que el loading se detiene siempre
     }
   }
 }

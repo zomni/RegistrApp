@@ -26,8 +26,8 @@ export class HubAlumnoPage implements OnInit {
   daysOfWeek: string[] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
   // Coordenadas del campus y radio en metros
-  targetLatitude: number = -33.4994505196263;
-  targetLongitude: number = -70.66439127315599;
+  targetLatitude: number = -33.62398953109721;
+  targetLongitude: number = -70.70978787693707;
   radius: number = 100;
 
   notificationsEnabled: boolean = false; // Estado del toggle de notificaciones

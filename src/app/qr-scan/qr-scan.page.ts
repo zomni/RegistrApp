@@ -18,10 +18,11 @@ import { LocationService } from '../services/location.service';
 export class QrScanPage implements OnInit, OnDestroy {
   public barcodes: any[] = [];
   public isScanning: boolean = false;
+  private isProcessing: boolean = false; // Nuevo: Evita registros duplicados
 
   // Coordenadas del campus y radio en metros
-  targetLatitude: number = -33.4994505196263;
-  targetLongitude: number = -70.66439127315599;
+  targetLatitude: number = -33.62398953109721;
+  targetLongitude: number = -70.70978787693707;
   radius: number = 100;
 
   constructor(
@@ -79,7 +80,6 @@ export class QrScanPage implements OnInit, OnDestroy {
         const qrData = result.barcodes[0].displayValue;
         const [subject, section, room, qrDate] = qrData.split('|');
 
-        // Invertir y agregar guiones a la fecha del QR (formato DD-MM-YYYY)
         const day = qrDate.slice(6, 8);
         const month = qrDate.slice(4, 6);
         const year = qrDate.slice(0, 4);
@@ -89,7 +89,7 @@ export class QrScanPage implements OnInit, OnDestroy {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
-        }).replace(/\//g, '-'); // Asegura que use guiones
+        }).replace(/\//g, '-');
 
         console.log('Fecha del QR (formateada):', formattedQrDate);
         console.log('Fecha actual:', currentDate);
@@ -110,6 +110,11 @@ export class QrScanPage implements OnInit, OnDestroy {
   }
 
   async registerAttendance(subject: string, section: string, date: string) {
+    if (this.isProcessing) {
+      return; // Evita duplicación al bloquear múltiples ejecuciones
+    }
+    this.isProcessing = true;
+
     const loading = await this.loadingController.create({
       message: 'Registrando asistencia...',
     });
@@ -118,35 +123,37 @@ export class QrScanPage implements OnInit, OnDestroy {
     try {
       const userId = (await this.afAuth.currentUser)?.uid;
       if (!userId) {
-        await this.showErrorMessage('No se pudo obtener el UID del usuario.');
-        return;
+        throw new Error('No se pudo obtener el UID del usuario.');
       }
 
       const user = await this.userService.getUser(userId);
       if (user) {
         const attendance = user.attendance || [];
-        const alreadyRegistered = attendance.some(
-          (record: any) => record.date === date && record.subject === subject && record.section === section
+
+        // Asegurarse de no duplicar registros
+        const uniqueAttendance = attendance.filter(
+          (record: any) =>
+            !(record.date === date && record.subject === subject && record.section === section)
         );
 
-        if (!alreadyRegistered) {
-          attendance.push({ date, subject, section, status: 'Presente' });
-          console.log('Guardando asistencia:', attendance);
-          await this.userService.updateUser(userId, { attendance });
-          await this.showSuccessMessage();
-        } else {
-          await this.showErrorMessage('Ya has registrado tu asistencia para esta clase.');
-        }
+        uniqueAttendance.push({ date, subject, section, status: 'Presente' });
+
+        console.log('Guardando asistencia actualizada:', uniqueAttendance);
+
+        await this.userService.updateUser(userId, { attendance: uniqueAttendance });
+        await this.showSuccessMessage(loading); // Asegura que se cierra el loading
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al registrar la asistencia:', error);
-      await this.showErrorMessage('Ocurrió un error al registrar la asistencia.');
+      await this.showErrorMessage(error.message || 'Ocurrió un error al registrar la asistencia.');
     } finally {
-      await loading.dismiss();
+      this.isProcessing = false;
+      await loading.dismiss(); // Asegura que el loading se cierra siempre
     }
   }
 
-  async showSuccessMessage() {
+  async showSuccessMessage(loading: HTMLIonLoadingElement) {
+    await loading.dismiss(); // Detiene el loading antes de mostrar la alerta
     const alert = await this.alertController.create({
       header: '¡Éxito!',
       message: '¡Asistencia registrada con éxito!',
@@ -154,7 +161,6 @@ export class QrScanPage implements OnInit, OnDestroy {
     });
 
     await alert.present();
-
     await alert.onDidDismiss();
     this.redirectToHubAlumno();
   }
