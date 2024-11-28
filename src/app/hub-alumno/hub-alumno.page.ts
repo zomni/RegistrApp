@@ -25,9 +25,9 @@ export class HubAlumnoPage implements OnInit {
   searchTerm: string = ''; // Término de búsqueda
   daysOfWeek: string[] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
-  // Coordenadas del campus y radio en metros 
-  targetLatitude: number = -33.62398953109721;
-  targetLongitude: number = -70.70978787693707;
+  // Coordenadas del campus y radio en metros, DUOC -33.49999570717075, -70.61663612676108
+  targetLatitude: number = -33.49999570717075;
+  targetLongitude: number = -70.61663612676108;
   radius: number = 100;
 
   notificationsEnabled: boolean = false; // Estado del toggle de notificaciones
