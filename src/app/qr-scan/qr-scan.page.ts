@@ -21,8 +21,8 @@ export class QrScanPage implements OnInit, OnDestroy {
   private isProcessing: boolean = false; // Nuevo: Evita registros duplicados
 
   // Coordenadas del campus y radio en metros
-  targetLatitude: number = -33.62398953109721;
-  targetLongitude: number = -70.70978787693707;
+  targetLatitude: number = -33.49999570717075;
+  targetLongitude: number = -70.61663612676108;
   radius: number = 100;
 
   constructor(

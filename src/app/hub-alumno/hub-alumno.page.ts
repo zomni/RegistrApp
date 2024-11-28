@@ -25,7 +25,7 @@ export class HubAlumnoPage implements OnInit {
   searchTerm: string = ''; // Término de búsqueda
   daysOfWeek: string[] = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
-  // Coordenadas del campus y radio en metros
+  // Coordenadas del campus y radio en metros 
   targetLatitude: number = -33.62398953109721;
   targetLongitude: number = -70.70978787693707;
   radius: number = 100;
@@ -83,6 +83,16 @@ export class HubAlumnoPage implements OnInit {
       await loading.dismiss();
     }
   }
+
+  async refreshLocation(event: any) {
+    try {
+      await this.updateLocationMessage();
+    } catch (error) {
+      console.error('Error al actualizar la ubicación:', error);
+    } finally {
+      event.target.complete();
+    }
+  }  
 
   async updateLocationMessage() {
     const hasPermission = await this.locationService.requestPermissions();

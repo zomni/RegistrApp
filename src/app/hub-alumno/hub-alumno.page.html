@@ -6,7 +6,6 @@
   </ion-header>
   <ion-content class="ion-padding">
     <ion-list>
-      <!-- Opciones del menú -->
       <ion-item button routerLink="/profile">
         <ion-icon name="person-outline" slot="start"></ion-icon>
         <ion-label>Perfil</ion-label>
@@ -22,7 +21,6 @@
       <ion-item>
         <ion-icon name="notifications-outline" slot="start"></ion-icon>
         <ion-label>Notificaciones</ion-label>
-        <ion-label> </ion-label>
         <ion-toggle [(ngModel)]="notificationsEnabled" (ionChange)="toggleNotifications()"></ion-toggle>
       </ion-item>
       <ion-item button (click)="logout()">
@@ -44,27 +42,35 @@
   </ion-header>
 
   <ion-content [fullscreen]="true">
+    <ion-refresher slot="fixed" (ionRefresh)="refreshLocation($event)">
+      <ion-refresher-content
+        pullingIcon="chevron-down-outline"
+        refreshingSpinner="crescent"
+        pullingText="Desliza hacia abajo para refrescar"
+        refreshingText="Actualizando ubicación..."
+      ></ion-refresher-content>
+    </ion-refresher>
+
     <div class="date-container">
       <h2>{{ currentDate }}</h2>
       <h3>{{ weather }}</h3>
-      <div class="location-container">
-        <h4>
-          {{ locationMessage }}
-          <ion-icon
-            *ngIf="isInsideCampus === true"
-            name="checkmark-circle-outline"
-            color="success"
-          ></ion-icon>
-          <ion-icon
-            *ngIf="isInsideCampus === false"
-            name="close-circle-outline"
-            color="danger"
-          ></ion-icon>
-        </h4>        
-        <ion-button fill="clear" size="small" (click)="checkLocationProximity()">
-          <ion-icon name="location-outline"></ion-icon>
-        </ion-button>
-      </div>
+      <ion-card>
+        <ion-card-content>
+          <h4>
+            {{ locationMessage }}
+            <ion-icon
+              *ngIf="isInsideCampus === true"
+              name="checkmark-circle-outline"
+              color="success"
+            ></ion-icon>
+            <ion-icon
+              *ngIf="isInsideCampus === false"
+              name="close-circle-outline"
+              color="danger"
+            ></ion-icon>
+          </h4>
+        </ion-card-content>
+      </ion-card>
     </div>
 
     <div class="schedule-container">
@@ -74,14 +80,13 @@
       </ion-button>
       <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="filterSchedule($event)" placeholder="Buscar por día o asignatura"></ion-searchbar>
 
-      <!-- Formato en lista -->
       <ion-list *ngIf="!isTableFormat">
         <ion-item *ngFor="let day of filteredSchedule" class="day-item">
           <ion-label>
             <h3 class="day-title">{{ day.day | titlecase }}</h3>
             <div *ngFor="let subject of day.subjects" class="subject-item">
               <p class="subject-name">Asignatura: {{ subject.subject }}</p>
-              <p class="subject-code">Siglas: {{ subject.code }}</p> <!-- Nuevo campo de siglas -->
+              <p class="subject-code">Siglas: {{ subject.code }}</p>
               <p class="subject-time">Hora: {{ subject.time }}</p>
               <p class="subject-room">Sala: {{ subject.sala }}</p>
               <p class="subject-section">Sección: {{ subject.section }}</p>
@@ -90,17 +95,16 @@
         </ion-item>
       </ion-list>
 
-      <!-- Formato en tabla -->
       <ion-grid *ngIf="isTableFormat">
         <ion-row>
           <ion-col size="3"><strong>Día</strong></ion-col>
           <ion-col size="2"><strong>Asignatura</strong></ion-col>
-          <ion-col size="2"><strong>Siglas</strong></ion-col> <!-- Columna de siglas -->
+          <ion-col size="2"><strong>Siglas</strong></ion-col>
           <ion-col size="2"><strong>Hora</strong></ion-col>
           <ion-col size="1"><strong>Sala</strong></ion-col>
           <ion-col size="2"><strong>Sección</strong></ion-col>
         </ion-row>
-        
+
         <ion-row *ngFor="let day of filteredSchedule">
           <ion-col size="3">{{ day.day | titlecase }}</ion-col>
           <ion-col size="2">
@@ -110,7 +114,7 @@
           </ion-col>
           <ion-col size="2">
             <div *ngFor="let subject of day.subjects">
-              <p>{{ subject.code }}</p> <!-- Campo de siglas en formato tabla -->
+              <p>{{ subject.code }}</p>
             </div>
           </ion-col>
           <ion-col size="2">

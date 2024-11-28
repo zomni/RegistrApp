@@ -70,12 +70,23 @@ ion-label {
       margin: 0; // Quitar margen
     }
   }
+
+  ion-card {
+    margin: 16px;
+    text-align: center;
+    --background: #F85E00;
+  
+    h4 {
+      font-size: 1.2rem;
+      margin: 8px 0;
+    }
+  }
   
   .schedule-container {
     padding: 16px;
     background-color: var(--ion-background-color);
   }
-  
+
   .day-item {
     margin-bottom: 16px;
     padding: 10px;
