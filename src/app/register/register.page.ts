@@ -1,6 +1,6 @@
 import { Component } from '@angular/core'; 
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -37,6 +37,13 @@ export class RegisterPage {
     "L8"
   ];
 
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private alertController: AlertController,
+    private loadingController: LoadingController // Inyectar el LoadingController
+  ) {}
+
   generateRandomSection(): string {
     const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
     const randomLetter = letters[Math.floor(Math.random() * letters.length)];
@@ -48,12 +55,6 @@ export class RegisterPage {
     const randomNumber = Math.floor(1000 + Math.random() * 9000); 
     return `PGY${randomNumber}`;
   }
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private alertController: AlertController
-  ) {}
 
   isValidEmail(email: string): boolean {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -134,6 +135,12 @@ export class RegisterPage {
       return;
     }
 
+    const loading = await this.loadingController.create({
+      message: 'Creando tu cuenta...', // Mensaje del loading
+      spinner: 'crescent', // Spinner personalizado
+    });
+    await loading.present(); // Mostrar el loading
+
     try {
       const user = await this.authService.register(
         this.email, this.password, this.name, 
@@ -141,11 +148,13 @@ export class RegisterPage {
       );
       const schedule = this.generateRandomSchedule();
       await this.authService.saveUserSchedule(user.uid, schedule);
-      
+
+      await loading.dismiss(); // Cierra el loading si el registro es exitoso
       this.router.navigate(['/login']).then(() => {
         window.location.reload();
       });
     } catch (error) {
+      await loading.dismiss(); // Cierra el loading si ocurre un error
       await this.showAlert('Error', (error as Error).message);
     }
   }
